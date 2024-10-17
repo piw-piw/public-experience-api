@@ -24,7 +24,7 @@ const example: ClassicShopSchema = {
 
 const route = createRoute({
     method: "get",
-    path: "/classic-shop",
+    path: "/stores/classic-shop",
     tags: ['Oaklands'],
     description: "Get the current classic shop. The shop resets every 12 hours.",
     responses: {

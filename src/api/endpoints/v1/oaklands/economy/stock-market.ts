@@ -38,7 +38,7 @@ const example: StockMarketSchema = {
 
 const route = createRoute({
     method: "get",
-    path: "/stock-market",
+    path: "/economy/stock-market",
     tags: ['Oaklands'],
     description: "Fetch the current material stock market values. The stock market resets every 6 hours.",
     responses: {

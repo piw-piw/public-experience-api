@@ -15,7 +15,7 @@ const example: StockMarketMaterialSchema = {
 
 const route = createRoute({
     method: "get",
-    path: "/stock-market/{material_type}",
+    path: "/economy/stock-market/{material_type}",
     tags: ['Oaklands'],
     description: "Fetch a specific value from the stock market.",
     parameters: [

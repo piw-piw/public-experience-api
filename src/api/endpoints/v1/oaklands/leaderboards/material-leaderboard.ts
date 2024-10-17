@@ -7,7 +7,7 @@ import container from "@/setup/container";
 
 const route = createRoute({
     method: "get",
-    path: "/current-material-leaderboard",
+    path: "/leaderboards/top-materials-today",
     tags: ['Oaklands'],
     description: "Get today\'s current material leaderboard. The leaderboard resets daily at 12AM UTC.",
     responses: {
