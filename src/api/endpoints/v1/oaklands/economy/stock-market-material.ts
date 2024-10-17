@@ -2,7 +2,7 @@ import { createRoute } from "@hono/zod-openapi";
 import type { BaseMaterial, MaterialStockMarket } from "@/lib/types/experience";
 import StockMarketMaterial, { StockMarketMaterialExample } from "@/lib/schemas/Oaklands/StockMarketMaterial";
 import oaklands from "@/api/routes/oaklands";
-import ErrorMessage from "@/lib/schemas/ErrorMessage";
+import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
 import container from "@/setup/container";
 
 const route = createRoute({
@@ -22,13 +22,13 @@ const route = createRoute({
         },
         404: {
             content: {
-                "application/json": { schema: ErrorMessage }
+                "application/json": { schema: ErrorMessage, example: ErrorMessageExample }
             },
             description: "NOT FOUND"   
         },
         500: {
             content: {
-                "application/json": { schema: ErrorMessage }
+                "application/json": { schema: ErrorMessage, example: ErrorMessageExample }
             },
             description: "INTERNAL ERROR"   
         }

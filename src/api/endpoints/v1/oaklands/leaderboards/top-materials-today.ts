@@ -1,7 +1,7 @@
 import { createRoute } from "@hono/zod-openapi";
 import type { MaterialLeaderboardItemSchema } from "@/lib/schemas/Oaklands/MaterialLeaderboardItem";
 import MaterialLeaderboard, { MaterialLeaderboardExample } from "@/lib/schemas/Oaklands/MaterialLeaderboard";
-import ErrorMessage from "@/lib/schemas/ErrorMessage";
+import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
 import oaklands from "@/api/routes/oaklands";
 import container from "@/setup/container";
 
@@ -19,7 +19,7 @@ const route = createRoute({
         },
         500: {
             content: {
-                "application/json": { schema: ErrorMessage }
+                "application/json": { schema: ErrorMessage, example: ErrorMessageExample }
             },
             description: "INTERNAL ERROR"   
         }

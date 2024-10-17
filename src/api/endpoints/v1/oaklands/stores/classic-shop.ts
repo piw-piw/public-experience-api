@@ -1,7 +1,7 @@
 import { createRoute } from "@hono/zod-openapi";
 import oaklands from "@/api/routes/oaklands";
 import ClassicShop, { ClassicShopExample } from "@/lib/schemas/Oaklands/ClassicShop";
-import ErrorMessage from "@/lib/schemas/ErrorMessage";
+import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
 import container from "@/setup/container";
 
 const route = createRoute({
@@ -18,7 +18,7 @@ const route = createRoute({
         },
         500: {
             content: {
-                "application/json": { schema: ErrorMessage }
+                "application/json": { schema: ErrorMessage, example: ErrorMessageExample }
             },
             description: "INTERNAL ERROR"   
         }
