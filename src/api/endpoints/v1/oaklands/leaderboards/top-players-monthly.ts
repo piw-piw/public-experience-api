@@ -121,7 +121,7 @@ oaklands.openapi(route, async (res) => {
     if (cursor) {
         const values = _decodeCursor(cursor);
 
-        if (!values) return res.json({
+        if (!values || currencyType !== values.currency_type) return res.json({
             error: "INVALID_CURSOR",
             message: "The provided cursor is invalid."
         }, 400);
