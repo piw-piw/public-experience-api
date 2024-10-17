@@ -1,6 +1,6 @@
 import { createRoute } from "@hono/zod-openapi";
 import type { MaterialLeaderboardItemSchema } from "@/lib/schemas/Oaklands/MaterialLeaderboardItem";
-import MaterialLeaderboard from "@/lib/schemas/Oaklands/MaterialLeaderboard";
+import MaterialLeaderboard, { MaterialLeaderboardExample } from "@/lib/schemas/Oaklands/MaterialLeaderboard";
 import ErrorMessage from "@/lib/schemas/ErrorMessage";
 import oaklands from "@/api/routes/oaklands";
 import container from "@/setup/container";
@@ -13,7 +13,7 @@ const route = createRoute({
     responses: {
         200: {
             content: {
-                "application/json": { schema: MaterialLeaderboard }
+                "application/json": { schema: MaterialLeaderboard, example: MaterialLeaderboardExample }
             },
             description: "OK"
         },
