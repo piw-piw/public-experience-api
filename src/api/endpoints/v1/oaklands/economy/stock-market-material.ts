@@ -1,17 +1,9 @@
 import { createRoute } from "@hono/zod-openapi";
 import type { BaseMaterial, MaterialStockMarket } from "@/lib/types/experience";
-import StockMarketMaterial, { type StockMarketMaterialSchema } from "@/lib/schemas/Oaklands/StockMarketMaterial";
+import StockMarketMaterial, { StockMarketMaterialExample } from "@/lib/schemas/Oaklands/StockMarketMaterial";
 import oaklands from "@/api/routes/oaklands";
 import ErrorMessage from "@/lib/schemas/ErrorMessage";
 import container from "@/setup/container";
-
-const example: StockMarketMaterialSchema = {
-    name: "Raw Petrified Oak",
-    base_value: 1.75,
-    current_value: 1.4525,
-    current_difference: 0.83,
-    last_difference: 0.8
-};
 
 const route = createRoute({
     method: "get",
@@ -24,7 +16,7 @@ const route = createRoute({
     responses: {
         200: {
             content: {
-                "application/json": { schema: StockMarketMaterial, example }
+                "application/json": { schema: StockMarketMaterial, example: StockMarketMaterialExample }
             },
             description: "OK"
         },

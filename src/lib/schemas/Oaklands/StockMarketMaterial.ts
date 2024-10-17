@@ -11,4 +11,12 @@ const StockMarketMaterial = z.object({
 
 export type StockMarketMaterialSchema = z.infer<typeof StockMarketMaterial>;
 
+export const StockMarketMaterialExample: StockMarketMaterialSchema = {
+    name: "Raw Petrified Oak",
+    base_value: 1.75,
+    current_value: 1.4525,
+    current_difference: 0.83,
+    last_difference: 0.8
+};
+
 export default StockMarketMaterial;

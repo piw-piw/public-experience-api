@@ -1,26 +1,8 @@
 import { createRoute } from "@hono/zod-openapi";
 import oaklands from "@/api/routes/oaklands";
-import ClassicShop, { type ClassicShopSchema } from "@/lib/schemas/Oaklands/ClassicShop";
+import ClassicShop, { ClassicShopExample } from "@/lib/schemas/Oaklands/ClassicShop";
 import ErrorMessage from "@/lib/schemas/ErrorMessage";
 import container from "@/setup/container";
-
-const example: ClassicShopSchema = {
-    reset_time: new Date("2024-10-02T16:00:00.000Z"),
-    items: [
-      "TeamFlag",
-      "BabyDucky",
-      "ClassicJeepVehiclePad",
-      "TobascoSauce",
-      "Oakpiece",
-      "BloxyCola",
-      "Trowel",
-      "WitchesBrew",
-      "StudGift",
-      "CannedBeans",
-      "SubspaceTripmine",
-      "RocketLauncher"
-    ]
-}
 
 const route = createRoute({
     method: "get",
@@ -30,7 +12,7 @@ const route = createRoute({
     responses: {
         200: {
             content: {
-                "application/json": { schema: ClassicShop, example }
+                "application/json": { schema: ClassicShop, ClassicShopExample }
             },
             description: "OK"
         },
