@@ -10,7 +10,7 @@ const route = createRoute({
     method: "get",
     path: "/leaderboards/top-players-monthly",
     tags: ['Oaklands'],
-    description: "Get today\'s current material leaderboard. The leaderboard resets daily at 12AM UTC.",
+    description: "Get the month\'s current top players. The leaderboard resets the 1st of every month at 12AM UTC.",
     parameters: [
         { name: 'currencyType', in: 'query', required: true, default: "Cash" },
         { name: 'cursor', in: 'query', required: false }
