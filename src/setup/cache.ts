@@ -19,10 +19,10 @@ const cacheRunners = {
             return date;
         })(new Date().getUTCHours());
 
-        // if (await container.redis.exists('material_stock_market')) {
-        //     const [ next_reset ]: [number, string[]] = JSON.parse(await container.redis.get('material_stock_market') as string);
-        //     if (next_reset >= reset.getTime()) return;
-        // }
+        if (await container.redis.exists('material_stock_market')) {
+            const [ next_reset ]: [number, string[]] = JSON.parse(await container.redis.get('material_stock_market') as string);
+            if (next_reset === reset.getTime()) return;
+        }
 
         const values = await getMaterialStockMarket();
 
