@@ -12,7 +12,7 @@ const route = createRoute({
     responses: {
         200: {
             content: {
-                "application/json": { schema: ClassicShop, ClassicShopExample }
+                "application/json": { schema: ClassicShop, example: ClassicShopExample }
             },
             description: "OK"
         },
