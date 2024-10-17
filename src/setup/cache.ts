@@ -39,7 +39,7 @@ const cacheRunners = {
 
         if (await container.redis.exists('classic_shop')) {
             const [ next_reset ]: [number, string[]] = JSON.parse(await container.redis.get('classic_shop') as string);
-            if (next_reset >= reset.getTime()) return;
+            if (next_reset === reset.getTime()) return;
         }
 
         const values = await getCurrentClassicShop();
