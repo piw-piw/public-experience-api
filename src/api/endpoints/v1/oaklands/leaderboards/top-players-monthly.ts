@@ -1,6 +1,6 @@
 import { rateLimiter } from "hono-rate-limiter";
 import { createRoute } from "@hono/zod-openapi";
-import MonthlyCashEarnedLeaderboard from "@/lib/schemas/Oaklands/CashEarnedLeaderboard";
+import MonthlyCashEarnedLeaderboard, { MonthlyCashEarnedLeaderboardExample } from "@/lib/schemas/Oaklands/CashEarnedLeaderboard";
 import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
 import oaklands from "@/api/routes/oaklands";
 import container from "@/setup/container";
@@ -27,7 +27,7 @@ const route = createRoute({
     responses: {
         200: {
             content: {
-                "application/json": { schema: MonthlyCashEarnedLeaderboard }
+                "application/json": { schema: MonthlyCashEarnedLeaderboard, example: MonthlyCashEarnedLeaderboardExample }
             },
             description: "OK"
         },

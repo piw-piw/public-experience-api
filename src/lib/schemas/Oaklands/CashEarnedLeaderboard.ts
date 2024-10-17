@@ -9,7 +9,7 @@ const MonthlyCashEarnedLeaderboard = z.object({
 
 export type MonthlyCashEarnedLeaderboardSchema = z.infer<typeof MonthlyCashEarnedLeaderboard>;
 
-const MonthlyCashEarnedLeaderboardExample: MonthlyCashEarnedLeaderboardSchema = {
+export const MonthlyCashEarnedLeaderboardExample: MonthlyCashEarnedLeaderboardSchema = {
     reset_time: new Date("2024-11-01T00:00:00.000Z"),
     next_page_cursor: null,
     players: [
