@@ -118,6 +118,11 @@ async function getMonthlyCashEarnedLeaderboardPage(values: { currency_type: stri
 oaklands.openapi(route, async (res) => {
     const { currencyType, cursor } = res.req.query();
 
+    if (!currencyType) return res.json({
+        error: "INVALID_CURRENCY",
+        message: "The provided currency type is invalid."
+    }, 400);
+
     if (cursor) {
         const values = _decodeCursor(cursor);
 
