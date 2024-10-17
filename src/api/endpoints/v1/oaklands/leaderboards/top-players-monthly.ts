@@ -17,7 +17,8 @@ const route = createRoute({
     ],
     middleware: every(
         rateLimiter({
-            windowMs: 5 * 1000,
+            limit: 1,
+            windowMs: 3 * 1000,
             standardHeaders: "draft-6",
             message: (c) => ({ error: "TOO_MANY_REQUESTS", message: "You are being ratelimited, try again later." }),
             keyGenerator: (c) => "<unique_key>"
@@ -106,7 +107,12 @@ async function getMonthlyCashEarnedLeaderboardPage(values: { currency_type: stri
 
     client.release();
 
+    const reset = new Date();
+    reset.setUTCMonth(reset.getUTCMonth() + 1, 1);
+    reset.setUTCHours(0, 0, 0, 0);
+
     return {
+        reset_time: reset,
         next_page_cursor: nextCursor,
         players: rows.map((r) => ({
             ...r,
