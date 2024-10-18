@@ -66,8 +66,8 @@ NodeSchedule.scheduleJob('reset_classic_shop', '0 4,16 * * *', async () =>
     ])
 );
 
-// Runs every 4th, 10th, 16th, 20th hour.
-NodeSchedule.scheduleJob('reset_stockmarket', '0 4,10,16,20 * * *', async () => 
+// Runs every 4th, 10th, 16th, 22nd hour.
+NodeSchedule.scheduleJob('reset_stockmarket', '0 4,10,16,22 * * *', async () => 
     await Promise.all([
         cacheRunners.materialStockMarket()
     ])
