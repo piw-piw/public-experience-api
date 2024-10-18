@@ -7,15 +7,17 @@ const cacheRunners = {
         const reset = ((currentHours: number) => {
             const date = new Date();
 
-            currentHours = (currentHours + 20) % 24;
-            const nextResetHour = (Math.ceil(currentHours / 6) * 6) % 24;
+            const nextResetHour = (Math.floor((currentHours + 2) / 6) * 6 + 4) % 24;
+            
+            date.setUTCHours(
+                nextResetHour === currentHours
+                    ? (nextResetHour + 6) % 24
+                    : nextResetHour,
+                0, 0, 0
+            );
 
-            if (nextResetHour === 0) {
-                date.setUTCDate(date.getUTCDate() + 1);
-            }
-        
-            date.setUTCHours(nextResetHour + 4, 0, 0, 0);
-        
+            if (nextResetHour === 4) date.setUTCDate(date.getUTCDate() + 1);
+
             return date;
         })(new Date().getUTCHours());
 
