@@ -59,8 +59,8 @@ const cacheRunners = {
 
 await Promise.all(Object.entries(cacheRunners).map(([_, func]) => func()));
 
-// Runs every 16th hour.
-NodeSchedule.scheduleJob('reset_classic_shop', '0 16 * * *', async () => 
+// Runs every 4th, 16th hour.
+NodeSchedule.scheduleJob('reset_classic_shop', '0 4,16 * * *', async () => 
     await Promise.all([
         cacheRunners.classicShop(),
     ])
