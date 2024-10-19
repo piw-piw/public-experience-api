@@ -1,5 +1,5 @@
 import path from 'path';
-import { readdirSync, readFileSync } from 'fs';
+import { existsSync, readdirSync, readFileSync } from 'fs';
 import { LuauExecutionApi } from "openblox/cloud";
 import { pollMethod } from 'openblox/helpers';
 import type { MaterialStockMarket } from '@/lib/types/experience';
@@ -10,14 +10,19 @@ import container from '@/setup/container';
 /**
  * Read the contents of a Lua/Luau file.
  * @param fileName The file to read.
- * @returns {string | null}
+ * @returns {string}
  */
-function _readLuaFile(fileName: string): string | null {
+function _readLuaFile(fileName: string): string {
     if (!fileName.endsWith('.lua') && !fileName.endsWith('.luau')) {
-        return null;
+        throw new Error('The provided file is not a valid lua / luau file.');
     }
 
+
     const filePath = path.join(process.cwd(), '/src/lib/luau-execution', fileName);
+    if (!existsSync(filePath)) {
+        throw new Error('The provided file does not exist in /src/lib/luau-execution.');
+    }
+        
     const code = readFileSync(filePath, { encoding: 'utf-8' });
 
     return code;
@@ -80,28 +85,26 @@ export function getFilePaths(dir: string, filterPath: string = '.ts', paths: str
 
 /**
  * Get the current Oaklands material stock market.
- * @returns 
+ * @returns {Promise<MaterialStockMarket>}
  */
-export async function getMaterialStockMarket() {
+export async function getMaterialStockMarket(): Promise<MaterialStockMarket> {
     const script = _readLuaFile('stock-market.luau');
-    if (!script) return;
 
     const result = await _executeLuau<MaterialStockMarket>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
-    if (!result) return await new Promise((res) => setTimeout(async () => res(await getMaterialStockMarket()), 1000 * 60));
+    if (!result) return await new Promise<MaterialStockMarket>((res) => setTimeout(async () => res(await getMaterialStockMarket()), 1000 * 60));
 
     return result[0];
 }
 
 /**
  * Get the current items in the classic shop.
- * @returns 
+ * @returns {Promise<string[]>}
  */
-export async function getCurrentClassicShop() {
+export async function getCurrentClassicShop(): Promise<string[]> {
     const script = _readLuaFile('classic-shop.luau');
-    if (!script) return;
 
     const result = await _executeLuau<string[]>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
-    if (!result) return await new Promise((res) => setTimeout(async () => res(await getCurrentClassicShop()), 1000 * 60));
+    if (!result) return await new Promise<string[]>((res) => setTimeout(async () => res(await getCurrentClassicShop()), 1000 * 60));
 
     return result[0];
 }
