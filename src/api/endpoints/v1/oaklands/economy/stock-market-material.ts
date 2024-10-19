@@ -7,11 +7,11 @@ import container from "@/setup/container";
 
 const route = createRoute({
     method: "get",
-    path: "/economy/stock-market/{material_type}",
+    path: "/economy/stock-market/{materialType}",
     tags: ['Oaklands'],
     description: "Fetch a specific value from the stock market.",
     parameters: [
-        { name: 'material_type', in: 'path', required: true }
+        { name: 'materialType', in: 'path', required: true }
     ],
     responses: {
         200: {
@@ -43,7 +43,7 @@ oaklands.openapi(route, async (res) => {
         }, 500);
     }
 
-    const materialType = res.req.param('material_type');
+    const materialType = res.req.param('materialType');
     const [ _, items ]: [number, MaterialStockMarket] = JSON.parse((await container.redis.get('material_stock_market'))!);
 
     const materials = Object.values(items)

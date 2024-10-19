@@ -44,7 +44,7 @@ async function _executeLuau<Data extends Object>(script: string, info: { univers
             LuauExecutionApi.luauExecutionTask<Data[]>({ universeId, placeId, version, sessionId, taskId }),
             async ({ data }, stopPolling) => data.state === "COMPLETE" && stopPolling(),
         );
-    
+
         if (typeof executedTask.output !== 'object') {
             throw new Error('Unexpected return type');
         }
@@ -90,7 +90,7 @@ export function getFilePaths(dir: string, filterPath: string = '.ts', paths: str
 export async function getMaterialStockMarket(): Promise<MaterialStockMarket> {
     const script = _readLuaFile('stock-market.luau');
 
-    const result = await _executeLuau<MaterialStockMarket>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
+    const result = await _executeLuau<MaterialStockMarket>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Staging });
     if (!result) return await new Promise<MaterialStockMarket>((res) => setTimeout(async () => res(await getMaterialStockMarket()), 1000 * 60));
 
     return result[0];

@@ -36,7 +36,6 @@ function MaterialValues:GetClassFromType(Material: string, Type: string)
         Class = Class and Class:GetOreModule(Material)
     end
 
-
     if (not Class) then
         return nil
     end
