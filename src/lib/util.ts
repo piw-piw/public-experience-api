@@ -133,7 +133,7 @@ export async function getMaterialLeaderboards() {
         leaderboards[currency] = leaderboard.map(({ position, material_type, cash_amount }) => ({
             position,
             name: material_type.split(/(?=[A-Z])/).join(' '),
-            value: cash_amount
+            value: Number(cash_amount)
         }));
     }
 
