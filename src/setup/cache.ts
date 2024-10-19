@@ -1,6 +1,6 @@
 import NodeSchedule from "node-schedule";
 import container from "@/setup/container";
-import { getMaterialStockMarket, getCurrentClassicShop, getMaterialLeaderboard } from "@/lib/util";
+import { getMaterialStockMarket, getCurrentClassicShop, getMaterialLeaderboard, getMaterialLeaderboards } from "@/lib/util";
 
 const cacheRunners = {
     materialStockMarket: async () => {
@@ -53,7 +53,7 @@ const cacheRunners = {
         reset.setUTCDate(reset.getUTCDate() + 1);
         reset.setUTCHours(0, 0, 0, 0);
 
-        const values = await getMaterialLeaderboard();
+        const values = await getMaterialLeaderboards();
 
         container.redis.set('material_leaderboard', JSON.stringify([reset.getTime(), new Date().getTime(), values]));
     }

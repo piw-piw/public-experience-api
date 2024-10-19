@@ -109,6 +109,42 @@ export async function getCurrentClassicShop(): Promise<string[]> {
     return result[0];
 }
 
+export async function getMaterialLeaderboards() {
+    const client = await container.database.connect();
+
+    await client.query('BEGIN READ ONLY;');
+
+    const { rows: columns } = await client.query<{ currency_type: string }>(`SELECT DISTINCT currency_type FROM oaklands_daily_materials_sold_current`);
+    const currencies = columns.map(({ currency_type }) => currency_type);
+
+    const leaderboards: Record<string, { position: number; name: string; value: number; }[]> = {};
+
+    for (const currency of currencies) {
+        const { rows: leaderboard } = await client.query<{ position: number; material_type: string; cash_amount: number; }>(
+            `SELECT
+                CAST(ROW_NUMBER() OVER (ORDER BY cash_amount DESC) AS INT) as position,
+                material_type, cash_amount
+            FROM oaklands_daily_materials_sold_current
+            WHERE currency_type = $1
+            ORDER BY cash_amount DESC;`,
+            [currency]
+        );
+
+        leaderboards[currency] = leaderboard.map(({ position, material_type, cash_amount }) => ({
+            position,
+            name: material_type.split(/(?=[A-Z])/).join(' '),
+            value: cash_amount
+        }));
+    }
+
+    client.release();
+
+    return {
+        currencies,
+        leaderboards
+    };
+}
+
 /**
  * Fetch the current material leaderboard.
  * @returns {Promise<Record<string, Record<string, MaterialLeaderboardItemSchema>>>}

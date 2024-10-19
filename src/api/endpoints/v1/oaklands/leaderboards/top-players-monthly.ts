@@ -1,6 +1,6 @@
 import { rateLimiter } from "hono-rate-limiter";
 import { createRoute } from "@hono/zod-openapi";
-import MonthlyCashEarnedLeaderboard, { MonthlyCashEarnedLeaderboardExample } from "@/lib/schemas/Oaklands/CashEarnedLeaderboard";
+import MonthlyCashEarnedLeaderboard, { MonthlyCashEarnedLeaderboardExample, type MonthlyCashEarnedLeaderboardSchema } from "@/lib/schemas/Oaklands/CashEarnedLeaderboard";
 import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
 import oaklands from "@/api/routes/oaklands";
 import container from "@/setup/container";
@@ -72,13 +72,14 @@ function _decodeCursor(cursor: string) {
     return values;
 }
 
-async function getMonthlyCashEarnedLeaderboardPage(values: { currency_type: string, page: number, limit: number }) {
+async function getMonthlyCashEarnedLeaderboardPage(values: { currency_type: string, page: number, limit: number }): Promise<MonthlyCashEarnedLeaderboardSchema> {
     const client = await container.database.connect();
     let nextCursor: string | null = null;
 
     await client.query('BEGIN READ ONLY;');
 
-    const { rows } = await client.query<{ position: number, user_id: string, cash_amount: number }>(
+    const { rows: columns } = await client.query<{ currency_type: string }>(`SELECT DISTINCT currency_type FROM oaklands_daily_materials_sold_current`);
+    const { rows: leaderboard } = await client.query<{ position: number, user_id: string, cash_amount: number }>(
         `SELECT
             CAST(ROW_NUMBER() OVER (ORDER BY cash_amount DESC) AS INT) as position,
             user_id,
@@ -114,7 +115,8 @@ async function getMonthlyCashEarnedLeaderboardPage(values: { currency_type: stri
     return {
         reset_time: reset,
         next_page_cursor: nextCursor,
-        players: rows.map((r) => ({
+        currency_types: columns.map(({ currency_type }) => currency_type),
+        leaderboard: leaderboard.map((r) => ({
             ...r,
             cash_amount: Number(r.cash_amount)
         }))
