@@ -22,7 +22,7 @@ const cacheRunners = {
         })(new Date().getUTCHours());
 
         if (await container.redis.exists('material_stock_market')) {
-            const [ next_reset ]: [number, string[]] = JSON.parse(await container.redis.get('material_stock_market') as string);
+            const [ next_reset ]: [number] = JSON.parse(await container.redis.get('material_stock_market') as string);
             if (next_reset === reset.getTime()) return;
         }
 
@@ -40,7 +40,7 @@ const cacheRunners = {
         reset.setUTCHours(reset.getUTCHours() >= 16 ? 4 : 16, 0, 0, 0);
 
         if (await container.redis.exists('classic_shop')) {
-            const [ next_reset ]: [number, string[]] = JSON.parse(await container.redis.get('classic_shop') as string);
+            const [ next_reset ]: [number] = JSON.parse(await container.redis.get('classic_shop') as string);
             if (next_reset === reset.getTime()) return;
         }
 
