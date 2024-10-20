@@ -1,6 +1,6 @@
 import NodeSchedule from "node-schedule";
 import container from "@/setup/container";
-import { getMaterialStockMarket, getCurrentClassicShop, getMaterialLeaderboard, getMaterialLeaderboards } from "@/lib/util";
+import { getMaterialStockMarket, getCurrentClassicShop, getMaterialLeaderboards } from "@/lib/util";
 
 const cacheRunners = {
     materialStockMarket: async () => {
@@ -28,7 +28,7 @@ const cacheRunners = {
 
         const values = await getMaterialStockMarket();
 
-        container.redis.set('material_stock_market', JSON.stringify([reset.getTime(), values]));
+        await container.redis.set('material_stock_market', JSON.stringify([reset.getTime(), values]));
     },
     classicShop: async () => {
         const reset = new Date();
@@ -46,7 +46,7 @@ const cacheRunners = {
 
         const values = await getCurrentClassicShop();
 
-        container.redis.set('classic_shop', JSON.stringify([reset.getTime(), values]));
+        await container.redis.set('classic_shop', JSON.stringify([reset.getTime(), values]));
     },
     materialLeaderboard: async () => {
         const reset = new Date();
@@ -55,7 +55,7 @@ const cacheRunners = {
 
         const values = await getMaterialLeaderboards();
 
-        container.redis.set('material_leaderboard', JSON.stringify([reset.getTime(), new Date().getTime(), values]));
+        await container.redis.set('material_leaderboard', JSON.stringify([reset.getTime(), new Date().getTime(), values]));
     }
 };
 
