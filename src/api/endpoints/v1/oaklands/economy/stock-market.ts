@@ -11,7 +11,7 @@ const route = createRoute({
     tags: ['Oaklands'],
     description: "Fetch the current material stock market values. The stock market resets every 6 hours.",
     parameters: [
-        { name: "currencyTypes", description: "The currencies that you want to view.", in: "query", required: false }
+        // { name: "currencyTypes", description: "The currencies that you want to view.", in: "query", required: false }
     ],
     responses: {
         200: {
