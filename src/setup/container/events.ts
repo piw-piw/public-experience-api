@@ -1,22 +1,20 @@
 import EventEmitter from 'events';
+import { getCurrentRockRNG } from '@/lib/util';
 import container from '@/lib/container';
 
 const events = new EventEmitter();
 
-events.on('compare_version', async (curr: number) => {
-    const cachedVersion = await container.redis.get('current_version');
-    if (!cachedVersion) {
-        await container.redis.set('current_version', curr);
-        events.emit('version_change', { prev: null, curr });
+events.on('oaklands_update', async ({ curr }: { prev: number; curr: number; }) => {
+    console.log(true);
 
+    const rockRNG = await getCurrentRockRNG();
+
+    if (!rockRNG) {
         return;
     }
 
-    const prev = parseInt(cachedVersion);
-    if (prev !== curr) {
-        await container.redis.set('current_version', curr);
-        events.emit('version_change', { prev, curr });
-    }
+    await container.redis.set('last_update_epoch', Math.floor(curr));
+    await container.redis.set('current_rock_rng', JSON.stringify(rockRNG));
 });
 
 container.events = events;

@@ -15,3 +15,9 @@ export interface MaterialStockMarket {
     Rocks: Record<string, BaseMaterial<'raw' | 'forged' | 'refiend'>>;
     Ores: Record<string, BaseMaterial<'forged' | 'refined'>>;
 };
+
+interface RockVariant {
+    [key: string]: number;
+};
+
+export type RockVariantRNG = Record<string, Record<string, RockVariant>>;

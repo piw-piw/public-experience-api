@@ -2,10 +2,12 @@ import path from 'path';
 import { existsSync, readdirSync, readFileSync } from 'fs';
 import { LuauExecutionApi } from "openblox/cloud";
 import { pollMethod } from 'openblox/helpers';
-import type { MaterialStockMarket } from '@/lib/types/experience';
+import type { MaterialStockMarket, RockVariantRNG } from '@/lib/types/experience';
 import type { MaterialLeaderboardItemSchema } from '@/lib/schemas/Oaklands/MaterialLeaderboardItem';
 import { OaklandsPlaceIDs, UniverseIDs } from '@/lib/types/enums';
 import container from '@/lib/container';
+import { placesInfo } from 'openblox/classic/games';
+import { placeInfo } from 'openblox/cloud/experiences';
 
 /**
  * Read the contents of a Lua/Luau file.
@@ -42,7 +44,11 @@ async function _executeLuau<Data extends Object>(script: string, info: { univers
         
         const { data: executedTask } = await pollMethod(
             LuauExecutionApi.luauExecutionTask<Data[]>({ universeId, placeId, version, sessionId, taskId }),
-            async ({ data }, stopPolling) => data.state === "COMPLETE" && stopPolling(),
+            async ({ data }, stopPolling) => {
+                if (data.state === "FAILED") throw new Error(data.error.message);
+                if (data.state === "COMPLETE") stopPolling();
+            },
+            // async ({ data }, stopPolling) => data.state === "COMPLETE" && stopPolling(),
         );
 
         if (typeof executedTask.output !== 'object') {
@@ -93,11 +99,7 @@ export async function getMaterialStockMarket(): Promise<MaterialStockMarket> {
     const result = await _executeLuau<MaterialStockMarket>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Staging });
     if (!result) return await new Promise<MaterialStockMarket>((res) => setTimeout(async () => res(await getMaterialStockMarket()), 1000 * 60));
 
-    const { version, results } = result;
-
-    // container.events.emit('compare_version', version);
-    
-    return results[0];
+    return result.results[0];
 }
 
 /**
@@ -110,11 +112,20 @@ export async function getCurrentClassicShop(): Promise<string[]> {
     const result = await _executeLuau<string[]>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
     if (!result) return await new Promise<string[]>((res) => setTimeout(async () => res(await getCurrentClassicShop()), 1000 * 60));
 
-    const { version, results } = result;
+    return result.results[0];
+}
 
-    container.events.emit('compare_version', version);
+/**
+ * 
+ * @returns {Promise<RockVariantRNG>}
+ */
+export async function getCurrentRockRNG(): Promise<RockVariantRNG> {
+    const script = _readLuaFile('ore-rarity.luau');
 
-    return results[0];
+    const result = await _executeLuau<RockVariantRNG>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
+    if (!result) return await new Promise<any>((res) => setTimeout(async () => res(await getCurrentClassicShop()), 1000 * 60));
+
+    return result.results[0];
 }
 
 /**
@@ -155,4 +166,18 @@ export async function getMaterialLeaderboards(): Promise<{ currencies: string[];
         currencies,
         leaderboards
     };
+}
+
+/**
+ * Get the last update time for Oaklands.
+ * @returns {Promise<Date>}
+ */
+export async function getLastOaklandsUpdate(): Promise<Date> {
+    const details = await placeInfo({ universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
+
+    if (!details) {
+        throw new Error('Failed to get last update time.');
+    }
+
+    return details.data.updateTime;
 }
