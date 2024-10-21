@@ -95,7 +95,7 @@ export async function getMaterialStockMarket(): Promise<MaterialStockMarket> {
 
     const { version, results } = result;
 
-    container.events.emit('compare_version', version);
+    // container.events.emit('compare_version', version);
     
     return results[0];
 }
