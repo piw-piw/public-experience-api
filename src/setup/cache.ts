@@ -81,3 +81,7 @@ NodeSchedule.scheduleJob('refetch_leaderboard', '*/5 * * * *', async() =>
         cacheRunners.materialLeaderboard()
     ])
 );
+
+container.events.on('version_change', (info: { prev: number; curr: number; }) => {
+    
+});

@@ -93,7 +93,10 @@ export async function getMaterialStockMarket(): Promise<MaterialStockMarket> {
     const result = await _executeLuau<MaterialStockMarket>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Staging });
     if (!result) return await new Promise<MaterialStockMarket>((res) => setTimeout(async () => res(await getMaterialStockMarket()), 1000 * 60));
 
-    const { results } = result;
+    const { version, results } = result;
+
+    container.events.emit('compare_version', version);
+    
     return results[0];
 }
 
