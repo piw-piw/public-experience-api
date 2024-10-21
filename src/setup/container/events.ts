@@ -5,8 +5,6 @@ import container from '@/lib/container';
 const events = new EventEmitter();
 
 events.on('oaklands_update', async ({ curr }: { prev: number; curr: number; }) => {
-    console.log(true);
-
     const rockRNG = await getCurrentRockRNG();
 
     if (!rockRNG) {
