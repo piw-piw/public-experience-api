@@ -1,6 +1,6 @@
 import "@/setup/env";
-import "@/setup/database";
-import "@/setup/redis";
-import "@/setup/events";
+import "@/setup/container/database";
+import "@/setup/container/redis";
+import "@/setup/container/events";
 import "@/setup/endpoints";
 import "@/setup/cache";
