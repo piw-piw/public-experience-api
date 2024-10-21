@@ -32,9 +32,9 @@ function _readLuaFile(fileName: string): string {
  * Execute Luau.
  * @param script The script to run.
  * @param info The info to include with the task.
- * @returns {Promise<Data[] | null>}
+ * @returns {Promise<{ version: number; results: Data[] } | null>}
  */
-async function _executeLuau<Data extends Object>(script: string, info: { universeId: number, placeId: number, version?: number }): Promise<Data[] | null> {
+async function _executeLuau<Data extends Object>(script: string, info: { universeId: number, placeId: number, version?: number }): Promise<{ version: number; results: Data[] } | null> {
     try {
         const { data: { universeId, placeId, version, sessionId, taskId } } = await LuauExecutionApi.executeLuau({
             ...info, script
@@ -53,7 +53,7 @@ async function _executeLuau<Data extends Object>(script: string, info: { univers
             throw new Error('Unexpected return type');
         }
     
-        return executedTask.output.results;
+        return { version, results: executedTask.output.results };
     } catch (e) {
         return null;
     }
@@ -93,7 +93,8 @@ export async function getMaterialStockMarket(): Promise<MaterialStockMarket> {
     const result = await _executeLuau<MaterialStockMarket>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Staging });
     if (!result) return await new Promise<MaterialStockMarket>((res) => setTimeout(async () => res(await getMaterialStockMarket()), 1000 * 60));
 
-    return result[0];
+    const { results } = result;
+    return results[0];
 }
 
 /**
@@ -106,10 +107,18 @@ export async function getCurrentClassicShop(): Promise<string[]> {
     const result = await _executeLuau<string[]>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
     if (!result) return await new Promise<string[]>((res) => setTimeout(async () => res(await getCurrentClassicShop()), 1000 * 60));
 
-    return result[0];
+    const { version, results } = result;
+
+    container.events.emit('compare_version', version);
+
+    return results[0];
 }
 
-export async function getMaterialLeaderboards() {
+/**
+ * Fetches all of the current material leaderboards.
+ * @returns {Promise<{ currencies: string[], leaderboards: Record<string, MaterialLeaderboardItemSchema[]>}>}
+ */
+export async function getMaterialLeaderboards(): Promise<{ currencies: string[]; leaderboards: Record<string, MaterialLeaderboardItemSchema[]>; }> {
     const client = await container.database.connect();
 
     await client.query('BEGIN READ ONLY;');
@@ -143,43 +152,4 @@ export async function getMaterialLeaderboards() {
         currencies,
         leaderboards
     };
-}
-
-/**
- * Fetch the current material leaderboard.
- * @returns {Promise<Record<string, Record<string, MaterialLeaderboardItemSchema>>>}
- */
-export async function getMaterialLeaderboard(): Promise<Record<string, Record<string, MaterialLeaderboardItemSchema>>> {
-    const client = await container.database.connect();
-
-    await client.query('BEGIN READ ONLY;');
-
-    const { rows } = await client.query<{ position: number; material_type: string; cash_amount: number; currency_type: string }>(
-        `SELECT
-            CAST(ROW_NUMBER() OVER (PARTITION BY currency_type ORDER BY cash_amount DESC) AS INT) as position,
-            *
-        FROM oaklands_daily_materials_sold_current
-        GROUP BY material_type, currency_type
-        ORDER BY cash_amount DESC;`
-    );
-
-    const leaderboards: Record<string, Record<string, MaterialLeaderboardItemSchema>> = {};
-
-    for (const { position, material_type, cash_amount, currency_type } of rows) {
-        const key = material_type.split(/(?=[A-Z])/).map((l) => l.toLowerCase()).join('_');
-        const name = material_type.split(/(?=[A-Z])/).join(' ');
-
-        const currency = currency_type.toLowerCase();
-
-        if (!leaderboards[currency]) {
-            leaderboards[currency] = {};
-        }
-
-        leaderboards[currency][key] = { position, name, value: Number(cash_amount) };
-    }
-
-    await client.query('COMMIT;');
-    client.release();
-
-    return leaderboards;
 }
