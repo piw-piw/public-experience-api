@@ -1,7 +1,4 @@
-import "@/setup/env";
-import "@/setup/container";
-import "@/setup/cache";
-import "@/setup/endpoints";
+import '@/setup/initalize';
 
 import app from "@/lib/app";
 import v1 from "@/api/routes/v1";

@@ -1,3 +1,4 @@
+import container from '@/lib/container';
 import pg from 'pg';
 
 const { Pool } = pg;
@@ -16,4 +17,4 @@ database.on('error', (err, client) => {
     client.release();
 });
 
-export default database;
+container.database = database;

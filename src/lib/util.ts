@@ -5,7 +5,7 @@ import { pollMethod } from 'openblox/helpers';
 import type { MaterialStockMarket } from '@/lib/types/experience';
 import type { MaterialLeaderboardItemSchema } from '@/lib/schemas/Oaklands/MaterialLeaderboardItem';
 import { OaklandsPlaceIDs, UniverseIDs } from '@/lib/types/enums';
-import container from '@/setup/container';
+import container from '@/lib/container';
 
 /**
  * Read the contents of a Lua/Luau file.

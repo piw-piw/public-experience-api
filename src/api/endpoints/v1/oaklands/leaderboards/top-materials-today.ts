@@ -3,7 +3,7 @@ import type { MaterialLeaderboardItemSchema } from "@/lib/schemas/Oaklands/Mater
 import MaterialLeaderboard, { MaterialLeaderboardExample } from "@/lib/schemas/Oaklands/MaterialLeaderboard";
 import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
 import oaklands from "@/api/routes/oaklands";
-import container from "@/setup/container";
+import container from "@/lib/container";
 
 const route = createRoute({
     method: "get",

@@ -2,7 +2,7 @@ import { createRoute } from "@hono/zod-openapi";
 import oaklands from "@/api/routes/oaklands";
 import ClassicShop, { ClassicShopExample } from "@/lib/schemas/Oaklands/ClassicShop";
 import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
-import container from "@/setup/container";
+import container from "@/lib/container";
 
 const route = createRoute({
     method: "get",

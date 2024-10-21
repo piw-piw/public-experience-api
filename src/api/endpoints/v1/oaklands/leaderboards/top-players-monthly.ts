@@ -3,7 +3,7 @@ import { createRoute } from "@hono/zod-openapi";
 import MonthlyCashEarnedLeaderboard, { MonthlyCashEarnedLeaderboardExample, type MonthlyCashEarnedLeaderboardSchema } from "@/lib/schemas/Oaklands/CashEarnedLeaderboard";
 import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
 import oaklands from "@/api/routes/oaklands";
-import container from "@/setup/container";
+import container from "@/lib/container";
 import { every } from "hono/combine";
 
 const route = createRoute({

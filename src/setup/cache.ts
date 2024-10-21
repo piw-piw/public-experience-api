@@ -1,5 +1,5 @@
 import NodeSchedule from "node-schedule";
-import container from "@/setup/container";
+import container from "@/lib/container";
 import { getMaterialStockMarket, getCurrentClassicShop, getMaterialLeaderboards } from "@/lib/util";
 
 const cacheRunners = {

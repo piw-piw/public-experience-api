@@ -3,7 +3,7 @@ import type { BaseMaterial, MaterialStockMarket } from "@/lib/types/experience";
 import StockMarketMaterial, { StockMarketMaterialExample } from "@/lib/schemas/Oaklands/StockMarketMaterial";
 import oaklands from "@/api/routes/oaklands";
 import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
-import container from "@/setup/container";
+import container from "@/lib/container";
 
 const route = createRoute({
     method: "get",
