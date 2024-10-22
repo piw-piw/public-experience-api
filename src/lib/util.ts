@@ -6,7 +6,6 @@ import type { MaterialStockMarket, RockVariantRNG } from '@/lib/types/experience
 import type { MaterialLeaderboardItemSchema } from '@/lib/schemas/Oaklands/MaterialLeaderboardItem';
 import { OaklandsPlaceIDs, UniverseIDs } from '@/lib/types/enums';
 import container from '@/lib/container';
-import { placesInfo } from 'openblox/classic/games';
 import { placeInfo } from 'openblox/cloud/experiences';
 
 /**
