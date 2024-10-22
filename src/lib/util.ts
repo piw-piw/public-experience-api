@@ -1,12 +1,11 @@
 import path from 'path';
 import { existsSync, readdirSync, readFileSync } from 'fs';
-import { LuauExecutionApi } from "openblox/cloud";
+import { LuauExecutionApi, ExperiencesApi } from "openblox/cloud";
 import { pollMethod } from 'openblox/helpers';
 import type { MaterialStockMarket, RockVariantRNG } from '@/lib/types/experience';
 import type { MaterialLeaderboardItemSchema } from '@/lib/schemas/Oaklands/MaterialLeaderboardItem';
 import { OaklandsPlaceIDs, UniverseIDs } from '@/lib/types/enums';
 import container from '@/lib/container';
-import { placeInfo } from 'openblox/cloud/experiences';
 
 /**
  * Read the contents of a Lua/Luau file.
@@ -59,7 +58,10 @@ async function _executeLuau<Data extends Object>(script: string, info: { univers
         }
     
         return { version, results: executedTask.output.results };
-    } catch (e) {
+    }
+    catch (err: any) {
+        container.logger(`LuaU execution failed with error: ${err.message}`);
+
         return null;
     }
 }
@@ -93,6 +95,8 @@ export function getFilePaths(dir: string, filterPath: string = '.ts', paths: str
  * @returns {Promise<MaterialStockMarket>}
  */
 export async function getMaterialStockMarket(): Promise<MaterialStockMarket> {
+    container.logger('Fetching the current material stock market.');
+
     const script = _readLuaFile('stock-market.luau');
 
     const result = await _executeLuau<MaterialStockMarket>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Staging });
@@ -106,6 +110,8 @@ export async function getMaterialStockMarket(): Promise<MaterialStockMarket> {
  * @returns {Promise<string[]>}
  */
 export async function getCurrentClassicShop(): Promise<string[]> {
+    container.logger('Fetching the current classic shop.');
+
     const script = _readLuaFile('classic-shop.luau');
 
     const result = await _executeLuau<string[]>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
@@ -119,6 +125,8 @@ export async function getCurrentClassicShop(): Promise<string[]> {
  * @returns {Promise<RockVariantRNG>}
  */
 export async function getCurrentRockRNG(): Promise<RockVariantRNG> {
+    container.logger('Fetching the current ore rarity list.');
+
     const script = _readLuaFile('ore-rarity.luau');
 
     const result = await _executeLuau<RockVariantRNG>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
@@ -132,6 +140,8 @@ export async function getCurrentRockRNG(): Promise<RockVariantRNG> {
  * @returns {Promise<{ currencies: string[], leaderboards: Record<string, MaterialLeaderboardItemSchema[]>}>}
  */
 export async function getMaterialLeaderboards(): Promise<{ currencies: string[]; leaderboards: Record<string, MaterialLeaderboardItemSchema[]>; }> {
+    container.logger('Fetching the current ore material leaderboard.');
+
     const client = await container.database.connect();
 
     await client.query('BEGIN READ ONLY;');
@@ -172,7 +182,7 @@ export async function getMaterialLeaderboards(): Promise<{ currencies: string[];
  * @returns {Promise<Date>}
  */
 export async function getLastOaklandsUpdate(): Promise<Date> {
-    const details = await placeInfo({ universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
+    const details = await ExperiencesApi.placeInfo({ universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
 
     if (!details) {
         throw new Error('Failed to get last update time.');

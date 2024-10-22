@@ -6,6 +6,7 @@ declare global {
     interface Container {
         redis: RedisClientType;
         database: pg.Pool;
-        events: EventEmitter
+        events: EventEmitter;
+        logger: (message: string) =>  void;
     }
 };
