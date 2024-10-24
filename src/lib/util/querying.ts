@@ -16,7 +16,7 @@ export function cursorDecode<T>(cursor: string, keys: (keyof T)[], matching: Par
         const data = JSON.parse(rawData) as T;
 
         for (const k of keys) {
-            if (!data[k])
+            if (data[k] === undefined || data[k] === null)
                 throw new Error(`Invalid cursor keys are provided.`);
 
             if (matching[k] && data[k] !== matching[k])
@@ -49,6 +49,7 @@ export function cursorCreate<T>(object: T): string {
 export async function getMonthlyCashEarnedLeaderboardPage(values: { currency_type: string, page: number, limit: number }): Promise<MonthlyCashEarnedLeaderboardSchema> {
     const client = await container.database.connect();
     let nextCursor: string | null = null;
+    let previousCursor: string | null = null;
 
     await client.query('BEGIN READ ONLY;');
 
@@ -74,6 +75,14 @@ export async function getMonthlyCashEarnedLeaderboardPage(values: { currency_typ
         [values.currency_type]
     )).rows[0];
 
+    if ((values.page - 1) >= 0) {
+        previousCursor = cursorCreate({
+            currency_type: values.currency_type,
+            page: values.page - 1,
+            limit: values.limit  
+        });
+    }
+
     if (count > (values.page + 1) * values.limit) {
         nextCursor = cursorCreate({
             currency_type: values.currency_type,
@@ -92,6 +101,7 @@ export async function getMonthlyCashEarnedLeaderboardPage(values: { currency_typ
 
     return {
         reset_time: reset,
+        previous_page_cursor: previousCursor,
         next_page_cursor: nextCursor,
         currency_types: columns.map(({ currency_type }) => currency_type),
         leaderboard: leaderboard.map((r) => ({

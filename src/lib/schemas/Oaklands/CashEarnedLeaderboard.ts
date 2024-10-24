@@ -4,6 +4,7 @@ import MonthlyCashEarnedLeaderboardPlayer from '@/lib/schemas/Oaklands/CashEarne
 const MonthlyCashEarnedLeaderboard = z.object({
     reset_time: z.date(),
     currency_types: z.array(z.string()),
+    previous_page_cursor: z.nullable(z.string()),
     next_page_cursor: z.nullable(z.string()),
     leaderboard: z.array(MonthlyCashEarnedLeaderboardPlayer)
 });
@@ -13,6 +14,7 @@ export type MonthlyCashEarnedLeaderboardSchema = z.infer<typeof MonthlyCashEarne
 export const MonthlyCashEarnedLeaderboardExample: MonthlyCashEarnedLeaderboardSchema = {
     reset_time: new Date("2024-11-01T00:00:00.000Z"),
     currency_types: ["Cash", "Candy2024"],
+    previous_page_cursor: null,
     next_page_cursor: null,
     leaderboard: [
         {
