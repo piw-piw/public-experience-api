@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import { getCurrentRockRNG } from '@/lib/util';
+import { getCurrentRockRNG } from '@/lib/util/execute-luau';
 import container from '@/lib/container';
 
 const events = new EventEmitter();
