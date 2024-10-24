@@ -1,5 +1,7 @@
 import NodeSchedule from "node-schedule";
-import { getMaterialStockMarket, getCurrentClassicShop, getMaterialLeaderboards, getLastOaklandsUpdate } from "@/lib/util";
+import { getLastOaklandsUpdate } from "@/lib/util";
+import { getMaterialLeaderboards } from "@/lib/util/querying";
+import { getMaterialStockMarket, getCurrentClassicShop } from "@/lib/util/execute-luau";
 import container from "@/lib/container";
 
 const cacheRunners = {

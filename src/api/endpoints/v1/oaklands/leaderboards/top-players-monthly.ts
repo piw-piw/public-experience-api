@@ -1,10 +1,10 @@
+import { every } from "hono/combine";
 import { rateLimiter } from "hono-rate-limiter";
 import { createRoute } from "@hono/zod-openapi";
-import MonthlyCashEarnedLeaderboard, { MonthlyCashEarnedLeaderboardExample, type MonthlyCashEarnedLeaderboardSchema } from "@/lib/schemas/Oaklands/CashEarnedLeaderboard";
-import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
 import oaklands from "@/api/routes/oaklands";
-import container from "@/lib/container";
-import { every } from "hono/combine";
+import MonthlyCashEarnedLeaderboard, { MonthlyCashEarnedLeaderboardExample } from "@/lib/schemas/Oaklands/CashEarnedLeaderboard";
+import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
+import { cursorDecode, getMonthlyCashEarnedLeaderboardPage } from "@/lib/util/querying";
 
 const route = createRoute({
     method: "get",
@@ -13,6 +13,7 @@ const route = createRoute({
     description: "Get the month\'s current top players. The leaderboard resets the 1st of every month at 12AM UTC.",
     parameters: [
         { name: 'currencyType', in: 'query', required: true, default: "Cash" },
+        { name: 'limit', in: 'query', required: false },
         { name: 'cursor', in: 'query', required: false }
     ],
     middleware: every(
@@ -46,85 +47,15 @@ const route = createRoute({
     }
 });
 
-function _createCursor(values: { currency_type: string, page: number }) {
-    return btoa(JSON.stringify(values));
-}
-
-function _decodeCursor(cursor: string) {
-    const data = atob(cursor);
-
-    let values: { currency_type: string, page: number } | null;
-
-    try {
-        const { currency_type, page } = JSON.parse(data);
-
-        if (!currency_type || !page) {
-            values = null
-        }
-        else {
-            values = { currency_type, page };
-        }
-    }
-    catch {
-        values = null;
-    }
-
-    return values;
-}
-
-async function getMonthlyCashEarnedLeaderboardPage(values: { currency_type: string, page: number, limit: number }): Promise<MonthlyCashEarnedLeaderboardSchema> {
-    const client = await container.database.connect();
-    let nextCursor: string | null = null;
-
-    await client.query('BEGIN READ ONLY;');
-
-    const { rows: columns } = await client.query<{ currency_type: string }>(`SELECT DISTINCT currency_type FROM oaklands_daily_materials_sold_current`);
-    const { rows: leaderboard } = await client.query<{ position: number, user_id: string, cash_amount: number }>(
-        `SELECT
-            CAST(ROW_NUMBER() OVER (ORDER BY cash_amount DESC) AS INT) as position,
-            user_id,
-            CAST(cash_amount AS BIGINT) as cash_amount
-        FROM oaklands_monthly_player_earnings_current
-        WHERE
-            currency_type = $1
-        ORDER BY cash_amount DESC
-        OFFSET $2
-        LIMIT $3;`,
-        [values.currency_type, values.page * values.limit, values.limit]
-    );
-
-    const { count } = (await client.query<{ count: number }>(
-        `SELECT COUNT(*) as count
-        FROM oaklands_monthly_player_earnings_current
-        WHERE currency_type = $1;`,
-        [values.currency_type]
-    )).rows[0];
-
-    if (count > (values.page + 1) * values.limit) {
-        nextCursor = _createCursor({ currency_type: values.currency_type, page: values.page + 1 });
-    }
-
-    await client.query('COMMIT;');
-
-    client.release();
-
-    const reset = new Date();
-    reset.setUTCMonth(reset.getUTCMonth() + 1, 1);
-    reset.setUTCHours(0, 0, 0, 0);
-
-    return {
-        reset_time: reset,
-        next_page_cursor: nextCursor,
-        currency_types: columns.map(({ currency_type }) => currency_type),
-        leaderboard: leaderboard.map((r) => ({
-            ...r,
-            cash_amount: Number(r.cash_amount)
-        }))
-    };
-}
-
 oaklands.openapi(route, async (res) => {
-    const { currencyType, cursor } = res.req.query();
+    const { currencyType, limit, cursor } = res.req.query();
+
+    const limitBy = parseInt(limit) || 25;
+
+    if (limitBy % 25 || limitBy > 100) return res.json({
+        error: "INVALID_LIMIT",
+        message: "Limit can only by increments of 25 (25,50,75,100) and no greater than 100."
+    }, 400);
 
     if (!currencyType) return res.json({
         error: "INVALID_CURRENCY",
@@ -132,23 +63,35 @@ oaklands.openapi(route, async (res) => {
     }, 400);
 
     if (cursor) {
-        const values = _decodeCursor(cursor);
+        const values = cursorDecode<{
+            currency_type: string;
+            page: number;
+            limit: number;
+        }>(
+            cursor,
+            ['currency_type', 'page', 'limit'],
+            {
+                currency_type: currencyType,
+                limit: parseInt(limit)
+            }
+        );
 
-        if (!values || currencyType !== values.currency_type) return res.json({
+        if (values.data === null && values.error) return res.json({
             error: "INVALID_CURSOR",
-            message: "The provided cursor is invalid."
+            message: values.error
         }, 400);
 
+        const { data } = values;
         return res.json(await getMonthlyCashEarnedLeaderboardPage({
-            currency_type: values.currency_type,
-            page: values.page,
-            limit: 50
+            currency_type: data!.currency_type,
+            page: data!.page,
+            limit: limitBy
         }), 200);
     }
 
     return res.json(await getMonthlyCashEarnedLeaderboardPage({
         currency_type: currencyType,
         page: 0,
-        limit: 50
+        limit: limitBy
     }), 200);
 });
