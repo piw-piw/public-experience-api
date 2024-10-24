@@ -3,9 +3,9 @@ import StockMarketMaterial from '@/lib/schemas/Oaklands/StockMarketMaterial';
 
 const StockMarket = z.object({
     reset_time: z.date(),
-    trees: z.record(StockMarketMaterial),
-    rocks: z.record(StockMarketMaterial),
-    ores: z.record(StockMarketMaterial)
+    trees: z.record(StockMarketMaterial).optional(),
+    rocks: z.record(StockMarketMaterial).optional(),
+    ores: z.record(StockMarketMaterial).optional()
 });
 
 export type StockMarketSchema = z.infer<typeof StockMarket>;

@@ -1,5 +1,5 @@
 import { createRoute } from "@hono/zod-openapi";
-import type { MaterialStockMarket } from "@/lib/types/experience";
+import type { BaseMaterial, MaterialStockMarket } from "@/lib/types/experience";
 import oaklands from "@/api/routes/oaklands";
 import StockMarket, { StockMarketExample } from "@/lib/schemas/Oaklands/StockMarket";
 import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
@@ -11,7 +11,9 @@ const route = createRoute({
     tags: ['Oaklands'],
     description: "Fetch the current material stock market values. The stock market resets every 6 hours.",
     parameters: [
-        // { name: "currencyTypes", description: "The currencies that you want to view.", in: "query", required: false }
+        { name: "materialTypes", description: "The materials that you want to include.", in: "query", required: false },
+        { name: "currencyTypes", description: "The currencies that you want to include.", in: "query", required: false },
+        { name: "orderDifference", description: "How you want to order the differences (asc, desc).", in: "query", required: false }
     ],
     responses: {
         200: {
@@ -29,6 +31,50 @@ const route = createRoute({
     }
 });
 
+function _filterMaterials(materials: string[], object: MaterialStockMarket) {
+    const keys = Object.keys(object) as string[];
+
+    for (const key of keys) {
+        if (!materials.includes(key.toLowerCase())) delete object[key];
+    }
+
+    return object;
+}
+
+function _filterCurrencies(currencies: string[], object: MaterialStockMarket) {
+    const typeEntries = Object.entries(object) as [string, Record<string, BaseMaterial<string>>][];
+
+    for (const [tk, tv] of typeEntries) {
+        const stockEntries = Object.entries(tv);
+
+        for (const [sk, sv] of stockEntries) {
+            if (!currencies.includes(sv.currency_type.toLowerCase())) delete object[tk][sk];
+        }
+    }
+
+    return object;
+}
+
+function _orderAmount(orderBy: string, object: MaterialStockMarket) {
+    const entries = Object.entries(object) as [string, Record<string, BaseMaterial<string>>][];
+
+    for (const [k, v] of entries) {
+        const values = Object.entries(v);
+
+        values.sort((a, b) => orderBy === 'desc'
+            ? (a[1].current_difference - a[1].last_difference) - (b[1].current_difference - b[1].last_difference)
+            : (b[1].current_difference - b[1].last_difference) - (a[1].current_difference - a[1].last_difference)
+        );
+
+        object[k] = values.reduce((acc, [k, v]) => ({
+            [k]: v,
+            ...acc
+        }), {} as Record<string, BaseMaterial<string>>);
+    }
+
+    return object;
+}
+
 oaklands.openapi(route, async (res) => {
     if (!(await container.redis.exists('material_stock_market'))) {
         return res.json({
@@ -37,7 +83,24 @@ oaklands.openapi(route, async (res) => {
         }, 500);
     }
 
-    const [ reset_time, items ]: [number, MaterialStockMarket] = JSON.parse((await container.redis.get('material_stock_market'))!);
+    let [ reset_time, items ]: [number, MaterialStockMarket] = JSON.parse((await container.redis.get('material_stock_market'))!);
+    const { materialTypes, currencyTypes, orderDifference } = res.req.query();
+    
+    if (materialTypes) {
+        items = _filterMaterials(materialTypes.toLowerCase().split(','), items);
+    }
+
+    if (currencyTypes) {
+        items = _filterCurrencies(currencyTypes.toLowerCase().split(','), items);
+    }
+
+    if (orderDifference) {
+        const orders = [ 'asc', 'desc' ];
+        
+        if (orders.includes(orderDifference.toLowerCase())) {
+            items = _orderAmount(orderDifference.toLowerCase(), items);
+        }
+    }
 
     return res.json({
         reset_time: new Date(reset_time),

@@ -11,6 +11,7 @@ export type BaseMaterial<T extends string = string> = {
 };
 
 export interface MaterialStockMarket {
+    [x: string]: Record<string, BaseMaterial<string>>;
     Trees: Record<string, BaseMaterial<'raw' | 'milled' | 'planked'>>;
     Rocks: Record<string, BaseMaterial<'raw' | 'forged' | 'refiend'>>;
     Ores: Record<string, BaseMaterial<'forged' | 'refined'>>;
