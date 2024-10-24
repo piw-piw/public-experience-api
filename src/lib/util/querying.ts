@@ -19,6 +19,9 @@ export function cursorDecode<T>(cursor: string, keys: (keyof T)[], matching: Par
             if (data[k] === undefined || data[k] === null)
                 throw new Error(`Invalid cursor keys are provided.`);
 
+            if (typeof data[k] === 'number' && data[k] < 0)
+                throw new Error(`Invalid cursor keys are provided.`);
+
             if (matching[k] && data[k] !== matching[k])
                 throw new Error(`Cursor is not matching.`);
         }
