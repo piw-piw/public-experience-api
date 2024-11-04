@@ -1,18 +1,19 @@
 import { createRoute } from "@hono/zod-openapi";
 import oaklands from "@/api/routes/oaklands";
-import ClassicShop, { ClassicShopExample } from "@/lib/schemas/Oaklands/ClassicShop";
 import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
+import type { StoresItems } from "@/lib/types/experience";
+import ShopList from "@/lib/schemas/Oaklands/ShopList";
 import container from "@/lib/container";
 
 const route = createRoute({
     method: "get",
-    path: "/stores/classic-shop",
+    path: "/stores",
     tags: ['Oaklands'],
-    description: "Get the current classic shop. The shop resets every 12 hours.",
+    description: "List all of the available stores.",
     responses: {
         200: {
             content: {
-                "application/json": { schema: ClassicShop, example: ClassicShopExample }
+                "application/json": { schema: ShopList }
             },
             description: "OK"
         },
@@ -26,13 +27,19 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    if (!(await container.redis.exists('classic_shop'))) {
+    if (!(await container.redis.exists('store_items'))) {
         return res.json({
             error: "INTERNAL_ERROR",
-            message: "The contents for the shop are currently not cached."
+            message: "The contents for all stores are currently not cached."
         }, 500);
     }
 
-    const [ reset_time, items ]: [number, string[]] = JSON.parse((await container.redis.get('classic_shop'))!);
-    return res.json({ reset_time: new Date(reset_time), items }, 200);
+    const stores: StoresItems = JSON.parse((await container.redis.get('store_items'))!);
+
+    return res.json({
+        stores: [
+            ...Object.keys(stores),
+            "classic-shop"
+        ]
+    }, 200);
 });

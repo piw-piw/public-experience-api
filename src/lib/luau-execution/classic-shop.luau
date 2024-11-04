@@ -2,21 +2,31 @@ _G.Server = {
     IsOnStaging = false
 }
 
+local Translations = require(game:GetService("ReplicatedFirst"):FindFirstChild("Client"):FindFirstChild("GUI"):FindFirstChild("Translations")).new()
+Translations:PreloadLanguages()
+
 local Store = require(game.ServerScriptService.Server.World.Stores["Classic Store"]).new() 
 Store:CalculateSeed()
 
 local Items = Store.CurrentItems
-return Items
 
--- local List = {}
--- for _, item in pairs(Items) do
--- 	local Info = game.ServerScriptService.Server.Content.Object:FindFirstChild(item, true)
+local ClassicStoreItems = {}
+for _, item in pairs(Items) do
+	local ItemInfo = game.ServerScriptService.Server.Content.Object:FindFirstChild(item, true)
 
--- 	if (Info and Info:FindFirstChild("Store")) then
--- 		local Details = require(Info.Store).new()
+	if (ItemInfo and ItemInfo:FindFirstChild("Store")) then
+		local ItemDetails = require(ItemInfo.Store).new()
+        local TranslatedName = Translations:GetTranslation(item)
+        local CurrencyType = ItemDetails.CustomCurrency or "Cash"
 
--- 		List[item] = Details.Price
--- 	end
--- end
+        table.insert(ClassicStoreItems, {
+            identifier = item,
+            name = TranslatedName,
+            currency = CurrencyType,
+            price = ItemDetails.Price,
+            type = ItemDetails.ConvertType:lower()
+        })
+	end
+end
 
--- return List
+return ClassicStoreItems

@@ -22,3 +22,12 @@ interface RockVariant {
 };
 
 export type RockVariantRNG = Record<string, Record<string, RockVariant>>;
+
+export type StoreItem = {
+    name: string;
+    currency: string;
+    price: number;
+    type: string;
+};
+
+export type StoresItems = Record<string, StoreItem[]>;

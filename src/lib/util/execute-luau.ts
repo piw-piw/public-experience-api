@@ -2,7 +2,8 @@ import path from 'path';
 import { existsSync, readFileSync } from 'fs';
 import { LuauExecutionApi } from "openblox/cloud";
 import { pollMethod } from "openblox/helpers";
-import type { MaterialStockMarket, RockVariantRNG } from '@/lib/types/experience';
+import { HttpError } from 'openblox/http';
+import type { MaterialStockMarket, RockVariantRNG, StoreItem, StoresItems } from '@/lib/types/experience';
 import { OaklandsPlaceIDs, UniverseIDs } from '@/lib/types/enums';
 import container from "@/lib/container";
 
@@ -15,7 +16,6 @@ function _readLuaFile(fileName: string): string {
     if (!fileName.endsWith('.lua') && !fileName.endsWith('.luau')) {
         throw new Error('The provided file is not a valid lua / luau file.');
     }
-
 
     const filePath = path.join(process.cwd(), '/src/lib/luau-execution', fileName);
     if (!existsSync(filePath)) {
@@ -35,17 +35,20 @@ function _readLuaFile(fileName: string): string {
  */
 async function _executeLuau<Data extends Object>(script: string, info: { universeId: number, placeId: number, version?: number }): Promise<{ version: number; results: Data[] } | null> {
     try {
-        const { data: { universeId, placeId, version, sessionId, taskId } } = await LuauExecutionApi.executeLuau({
-            ...info, script
-        });
+        const { data: { universeId, placeId, version, sessionId, taskId } } = await LuauExecutionApi.executeLuau({ ...info, script });
         
         const { data: executedTask } = await pollMethod(
             LuauExecutionApi.luauExecutionTask<Data[]>({ universeId, placeId, version, sessionId, taskId }),
             async ({ data }, stopPolling) => {
-                if (data.state === "FAILED") throw new Error(data.error.message);
-                if (data.state === "COMPLETE") stopPolling();
+                if (data.state === "FAILED") {
+                    stopPolling();
+
+                    if (data.error) throw data.error;
+                    throw new Error('Unknown error.');
+                }
+                if (data.state === "COMPLETE")
+                    stopPolling();
             },
-            // async ({ data }, stopPolling) => data.state === "COMPLETE" && stopPolling(),
         );
 
         if (typeof executedTask.output !== 'object') {
@@ -59,6 +62,21 @@ async function _executeLuau<Data extends Object>(script: string, info: { univers
         return { version, results: executedTask.output.results };
     }
     catch (err: any) {
+        if (err instanceof HttpError) {
+            const { response } = err;
+
+            container.logger(`Luau executtion failed due to an HttpError. Status code was ${response.statusCode}.`);
+
+            const reset = err.response.headers.get('x-ratelimit-reset');
+            if (err.response.statusCode === 429 && reset) {
+                container.logger(`Luau execution was rate-limited, tryin again in ${reset} seconds.`);
+
+                return await new Promise((r) => setTimeout(async () => r(await _executeLuau<Data>(script, info)), parseInt(reset) * 1000));
+            }
+
+            return await new Promise((r) => setTimeout(async () => r(await _executeLuau<Data>(script, info)), 30 * 1000));
+        }
+
         container.logger(`LuaU execution failed with error: ${err.message}`);
 
         return null;
@@ -75,22 +93,22 @@ export async function getMaterialStockMarket(): Promise<MaterialStockMarket> {
     const script = _readLuaFile('stock-market.luau');
 
     const result = await _executeLuau<MaterialStockMarket>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
-    if (!result) return await new Promise<MaterialStockMarket>((res) => setTimeout(async () => res(await getMaterialStockMarket()), 1000 * 60));
+    if (!result) return await new Promise<MaterialStockMarket>((res) => setTimeout(async () => res(await getMaterialStockMarket()), 1000 * 30));
 
     return result.results[0];
 }
 
 /**
  * Get the current items in the classic shop.
- * @returns {Promise<string[]>}
+ * @returns {Promise<StoreItem[]>}
  */
-export async function getCurrentClassicShop(): Promise<string[]> {
+export async function getCurrentClassicShop(): Promise<StoreItem[]> {
     container.logger('Fetching the current classic shop.');
 
     const script = _readLuaFile('classic-shop.luau');
 
-    const result = await _executeLuau<string[]>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
-    if (!result) return await new Promise<string[]>((res) => setTimeout(async () => res(await getCurrentClassicShop()), 1000 * 60));
+    const result = await _executeLuau<StoreItem[]>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
+    if (!result) return await new Promise<any>((res) => setTimeout(async () => res(await getCurrentClassicShop()), 1000 * 30));
 
     return result.results[0];
 }
@@ -105,7 +123,18 @@ export async function getCurrentRockRNG(): Promise<RockVariantRNG> {
     const script = _readLuaFile('ore-rarity.luau');
 
     const result = await _executeLuau<RockVariantRNG>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
-    if (!result) return await new Promise<any>((res) => setTimeout(async () => res(await getCurrentClassicShop()), 1000 * 60));
+    if (!result) return await new Promise<any>((res) => setTimeout(async () => res(await getCurrentClassicShop()), 1000 * 30));
+
+    return result.results[0];
+}
+
+export async function getCurrentStoreItems() {
+    container.logger('Fetching the all of the current shop items.');
+
+    const script = _readLuaFile('store-items.luau');
+
+    const result = await _executeLuau<StoresItems>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
+    if (!result) return await new Promise<any>((res) => setTimeout(async () => res(await getCurrentStoreItems()), 1000 * 30));
 
     return result.results[0];
 }
