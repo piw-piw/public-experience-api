@@ -74,7 +74,7 @@ export async function getMaterialStockMarket(): Promise<MaterialStockMarket> {
 
     const script = _readLuaFile('stock-market.luau');
 
-    const result = await _executeLuau<MaterialStockMarket>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Staging });
+    const result = await _executeLuau<MaterialStockMarket>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
     if (!result) return await new Promise<MaterialStockMarket>((res) => setTimeout(async () => res(await getMaterialStockMarket()), 1000 * 60));
 
     return result.results[0];
