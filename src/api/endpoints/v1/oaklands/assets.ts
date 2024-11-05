@@ -11,7 +11,6 @@ const route = createRoute({
     parameters: [
         { name: 'type', in: 'path', required: true },
         { name: 'identifier', in: 'path', required: true },
-        { name: 'extension', in: 'path', required: true },
     ],
     description: "Fetch an image asset.",
     responses: {
