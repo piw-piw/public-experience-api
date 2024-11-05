@@ -1,5 +1,5 @@
 import path from 'path';
-import { readdirSync } from 'fs';
+import { existsSync, readdirSync, readFileSync } from 'fs';
 import { ExperiencesApi } from "openblox/cloud";
 import { OaklandsPlaceIDs, UniverseIDs } from '@/lib/types/enums';
 
@@ -39,4 +39,26 @@ export async function getLastOaklandsUpdate(): Promise<Date> {
     }
 
     return details.data.updateTime;
+}
+
+export function getImagePath(type: string, identifier: string) {
+    const dir = path.join(process.cwd(), 'assets', type, `${identifier}.png`);
+    if (!existsSync(dir)) return path.posix.join(`no-image.png`);
+    return path.posix.join(type, `${identifier}.png`);
+}
+
+export function readAssetImageBuffer(type: string, identifier: string, extension: string) {
+    let dir = path.join(process.cwd(), 'assets', type, `${identifier}.${extension}`);
+    if (!existsSync(dir)) dir =path.join(process.cwd(), 'assets', 'no-image.png');
+    
+    const buffer = readFileSync(dir);
+
+    const arrayBuffer = new ArrayBuffer(buffer.length);
+    const view = new Uint8Array(arrayBuffer);
+
+    for (let i = 0; i < buffer.length; ++i) {
+      view[i] = buffer[i];
+    }
+
+    return arrayBuffer;
 }

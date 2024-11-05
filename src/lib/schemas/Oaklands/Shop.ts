@@ -16,6 +16,7 @@ export const ShopExample: ShopSchema = {
             currency: "Cash",
             price: 3000,
             type: "Gift",
+            identifier: "TeamFlag",
             image: null,
         }
     ]

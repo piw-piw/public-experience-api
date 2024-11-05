@@ -5,6 +5,7 @@ const ShopItem = z.object({
     currency: z.string(),
     price: z.number(),
     type: z.string(),
+    identifier: z.string(),
     image: z.nullable(z.string()).optional(),
 });
 

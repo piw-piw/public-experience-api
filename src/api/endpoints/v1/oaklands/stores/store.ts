@@ -5,6 +5,7 @@ import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
 import type { StoresItems } from "@/lib/types/experience";
 import type { ShopItemchema } from "@/lib/schemas/Oaklands/ShopItem";
 import container from "@/lib/container";
+import { getImagePath } from "@/lib/util";
 
 const route = createRoute({
     method: "get",
@@ -51,7 +52,11 @@ oaklands.openapi(route, async (res) => {
     
         return res.json({
             reset_time: new Date(reset_time),
-            shop_items: items
+            shop_items: items.map((item) => ({
+                ...item,
+                // image: `/v1/oaklands/assets/${item.type}/${item.identifier}.png`
+                image: `/v1/oaklands/assets/${getImagePath(item.type, item.identifier)}`
+            }))
         }, 200);
     }
     

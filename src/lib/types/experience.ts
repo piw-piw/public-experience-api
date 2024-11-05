@@ -27,6 +27,7 @@ export type StoreItem = {
     name: string;
     currency: string;
     price: number;
+    identifier: string;
     type: string;
 };
 
