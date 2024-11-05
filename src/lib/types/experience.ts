@@ -31,3 +31,9 @@ export type StoreItem = {
 };
 
 export type StoresItems = Record<string, StoreItem[]>;
+
+export type ShipLocation = {
+    current_position: number;
+    next_position: number;
+    next_reset: number;
+}

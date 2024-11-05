@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from 'fs';
 import { LuauExecutionApi } from "openblox/cloud";
 import { pollMethod } from "openblox/helpers";
 import { HttpError } from 'openblox/http';
-import type { MaterialStockMarket, RockVariantRNG, StoreItem, StoresItems } from '@/lib/types/experience';
+import type { MaterialStockMarket, RockVariantRNG, ShipLocation, StoreItem, StoresItems } from '@/lib/types/experience';
 import { OaklandsPlaceIDs, UniverseIDs } from '@/lib/types/enums';
 import container from "@/lib/container";
 
@@ -123,7 +123,7 @@ export async function getCurrentRockRNG(): Promise<RockVariantRNG> {
     const script = _readLuaFile('ore-rarity.luau');
 
     const result = await _executeLuau<RockVariantRNG>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
-    if (!result) return await new Promise<any>((res) => setTimeout(async () => res(await getCurrentClassicShop()), 1000 * 30));
+    if (!result) return await new Promise<RockVariantRNG>((res) => setTimeout(async () => res(await getCurrentRockRNG()), 1000 * 30));
 
     return result.results[0];
 }
@@ -134,7 +134,18 @@ export async function getCurrentStoreItems() {
     const script = _readLuaFile('store-items.luau');
 
     const result = await _executeLuau<StoresItems>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
-    if (!result) return await new Promise<any>((res) => setTimeout(async () => res(await getCurrentStoreItems()), 1000 * 30));
+    if (!result) return await new Promise<StoresItems>((res) => setTimeout(async () => res(await getCurrentStoreItems()), 1000 * 30));
+
+    return result.results[0];
+}
+
+export async function getCurrentShipLocation() {
+    container.logger('Fetching current pirate ship location.');
+
+    const script = _readLuaFile('ship-location.luau');
+
+    const result = await _executeLuau<ShipLocation>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
+    if (!result) return await new Promise<ShipLocation>((res) => setTimeout(async () => res(await getCurrentShipLocation()), 1000 * 30));
 
     return result.results[0];
 }

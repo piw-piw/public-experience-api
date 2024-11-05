@@ -1,7 +1,7 @@
 import NodeSchedule from "node-schedule";
 import { getLastOaklandsUpdate } from "@/lib/util";
 import { getMaterialLeaderboards } from "@/lib/util/querying";
-import { getMaterialStockMarket, getCurrentClassicShop } from "@/lib/util/execute-luau";
+import { getMaterialStockMarket, getCurrentClassicShop, getCurrentShipLocation } from "@/lib/util/execute-luau";
 import container from "@/lib/container";
 
 const cacheRunners = {
@@ -59,6 +59,16 @@ const cacheRunners = {
 
         await container.redis.set('material_leaderboard', JSON.stringify([reset.getTime(), new Date().getTime(), values]));
     },
+    shipLocation: async () => {
+        if (await container.redis.exists('ship_location')) {
+            const [ next_reset ]: [number] = JSON.parse(await container.redis.get('ship_location') as string);
+            if (next_reset >= Date.now() / 1000) return;
+        }
+
+        const values = await getCurrentShipLocation();
+
+        await container.redis.set('ship_location', JSON.stringify([values.next_reset, values.current_position, values.next_position]))
+    },
     oaklandsUpdateCheck: async () => {
         const cachedTime = await container.redis.get('last_update_epoch');
         const updateTime = await getLastOaklandsUpdate();
@@ -79,8 +89,12 @@ const cacheRunners = {
 
 await Promise.all(Object.entries(cacheRunners).map(([_, func]) => func()));
 
+NodeSchedule.scheduleJob('fetch_shiplocation', '*/60 * * * *', async () => await Promise.all([
+    cacheRunners.shipLocation()
+]))
+
 // Runs every 5th minute
-NodeSchedule.scheduleJob('refetch_leaderboard', '*/5 * * * *', async() => await Promise.all([
+NodeSchedule.scheduleJob('refetch_leaderboard', '*/5 * * * *', async () => await Promise.all([
     cacheRunners.oaklandsUpdateCheck(),
     cacheRunners.materialLeaderboard()
 ]));
