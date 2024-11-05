@@ -8,7 +8,7 @@ const route = createRoute({
     method: "get",
     path: "/stores/pirate-ship/location",
     tags: ['Oaklands'],
-    description: "List all of the available stores.",
+    description: "Get the current pirate ship location.",
     responses: {
         200: {
             content: {
