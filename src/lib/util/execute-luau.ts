@@ -67,7 +67,7 @@ async function _poll<Data extends Object>(info: { universeId: number; placeId: n
             if (response.statusCode === 429) {
                 const reset = parseInt(response.headers.get('x-ratelimit-reset')!);
 
-                container.logger(`Luau execution polling ratelimit was exhausting. Repolling similar method in ${reset} seconds.`);
+                container.logger(`Luau execution polling ratelimit was exhausted. Repolling similar method in ${reset} seconds.`);
                 return await new Promise((r) => setTimeout(async () => r(_poll<Data>(info)), reset * 1000));
             }
 
