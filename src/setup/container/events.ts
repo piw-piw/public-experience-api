@@ -4,6 +4,10 @@ import container from '@/lib/container';
 
 const events = new EventEmitter();
 
+events.on('registered_endpoints', async () => {
+    await import("@/setup/cache");
+});
+
 events.on('oaklands_update', async ({ curr }: { prev: number; curr: number; }) => {
     await container.redis.set('last_update_epoch', Math.floor(curr));
 
