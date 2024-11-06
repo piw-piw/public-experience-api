@@ -28,15 +28,14 @@ function _readLuaFile(fileName: string): string {
 }
 
 /**
- * Execute Luau.
- * @param script The script to run.
- * @param info The info to include with the task.
+ * Run a polled method.
+ * @param info The info to include with the polled task.
  * @returns {Promise<{ version: number; results: Data[] } | null>}
  */
-async function _executeLuau<Data extends Object>(script: string, info: { universeId: number, placeId: number, version?: number }): Promise<{ version: number; results: Data[] } | null> {
+async function _poll<Data extends Object>(info: { universeId: number; placeId: number; version: number; sessionId: string; taskId: string; }): Promise<{ version: number; results: Data[]; } | null> {
+    const { universeId, placeId, version, sessionId, taskId } = info;
+
     try {
-        const { data: { universeId, placeId, version, sessionId, taskId } } = await LuauExecutionApi.executeLuau({ ...info, script });
-        
         const { data: executedTask } = await pollMethod(
             LuauExecutionApi.luauExecutionTask<Data[]>({ universeId, placeId, version, sessionId, taskId }),
             async ({ data }, stopPolling) => {
@@ -65,20 +64,48 @@ async function _executeLuau<Data extends Object>(script: string, info: { univers
         if (err instanceof HttpError) {
             const { response } = err;
 
-            container.logger(`Luau executtion failed due to an HttpError. Status code was ${response.statusCode}.`);
+            if (response.statusCode === 429) {
+                const reset = parseInt(response.headers.get('x-ratelimit-reset')!);
 
-            const reset = err.response.headers.get('x-ratelimit-reset');
-            if (err.response.statusCode === 429 && reset) {
-                container.logger(`Luau execution was rate-limited, tryin again in ${reset} seconds.`);
-
-                return await new Promise((r) => setTimeout(async () => r(await _executeLuau<Data>(script, info)), parseInt(reset) * 1000));
+                container.logger(`Luau execution polling ratelimit was exhausting. Repolling similar method in ${reset} seconds.`);
+                return await new Promise((r) => setTimeout(async () => r(_poll<Data>(info)), reset * 1000));
             }
 
-            return await new Promise((r) => setTimeout(async () => r(await _executeLuau<Data>(script, info)), 30 * 1000));
+            container.logger(`Luau executtion failed due to an HttpError. Status code was ${response.statusCode}.`);
+            return await new Promise((r) => setTimeout(async () => r(_poll<Data>(info)), 30 * 1000));
         }
 
         container.logger(`LuaU execution failed with error: ${err.message}`);
+        return null;
+    }
+}
+/**
+ * Execute Luau.
+ * @param script The script to run.
+ * @param info The info to include with the task.
+ * @returns {Promise<{ version: number; results: Data[] } | null>}
+ */
+async function _executeLuau<Data extends Object>(script: string, info: { universeId: number, placeId: number, version?: number }): Promise<{ version: number; results: Data[]; } | null> {
+    try {
+        const { data: { universeId, placeId, version, sessionId, taskId } } = await LuauExecutionApi.executeLuau({ ...info, script });
+        return await _poll<Data>({ universeId, placeId, version, sessionId, taskId });
+    }
+    catch (err: any) {
+        if (err instanceof HttpError) {
+            const { response } = err;
 
+            if (response.statusCode === 429) {
+                const reset = parseInt(response.headers.get('x-ratelimit-reset')!);
+
+                container.logger(`Luau execution ratelimit was exhausted. Retrying in ${reset} seconds.`);
+                return await new Promise((r) => setTimeout(async () => r(_executeLuau<Data>(script, info)), reset * 1000));
+            }
+
+            container.logger(`Luau executtion failed due to an HttpError. Status code was ${response.statusCode}.`);
+            return await new Promise((r) => setTimeout(async () => r(_executeLuau<Data>(script, info)), 30 * 1000));
+        }
+
+        container.logger(`LuaU execution failed with error: ${err.message}`);
         return null;
     }
 }
