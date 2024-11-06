@@ -37,4 +37,6 @@ export type ShipLocation = {
     current_position: number;
     next_position: number;
     next_reset: number;
-}
+};
+
+export type TranslationKeys = Record<string, Record<string, string>>;

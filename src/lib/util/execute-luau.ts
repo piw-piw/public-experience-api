@@ -3,8 +3,15 @@ import { existsSync, readFileSync } from 'fs';
 import { LuauExecutionApi } from "openblox/cloud";
 import { pollMethod } from "openblox/helpers";
 import { HttpError } from 'openblox/http';
-import type { MaterialStockMarket, RockVariantRNG, ShipLocation, StoreItem, StoresItems } from '@/lib/types/experience';
 import { OaklandsPlaceIDs, UniverseIDs } from '@/lib/types/enums';
+import type {
+    MaterialStockMarket,
+    RockVariantRNG,
+    ShipLocation,
+    StoreItem,
+    StoresItems,
+    TranslationKeys,
+} from '@/lib/types/experience';
 import container from "@/lib/container";
 
 /**
@@ -155,7 +162,11 @@ export async function getCurrentRockRNG(): Promise<RockVariantRNG> {
     return result.results[0];
 }
 
-export async function getCurrentStoreItems() {
+/**
+ * Get the current store items.
+ * @returns {Promise<StoresItems>}
+ */
+export async function getCurrentStoreItems(): Promise<StoresItems> {
     container.logger('Fetching the all of the current shop items.');
 
     const script = _readLuaFile('store-items.luau');
@@ -166,13 +177,29 @@ export async function getCurrentStoreItems() {
     return result.results[0];
 }
 
-export async function getCurrentShipLocation() {
+/**
+ * Get the current ship location.
+ * @returns {Promise<ShipLocation>}
+ */
+export async function getCurrentShipLocation(): Promise<ShipLocation> {
     container.logger('Fetching current pirate ship location.');
 
     const script = _readLuaFile('ship-location.luau');
 
     const result = await _executeLuau<ShipLocation>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
     if (!result) return await new Promise<ShipLocation>((res) => setTimeout(async () => res(await getCurrentShipLocation()), 1000 * 30));
+
+    return result.results[0];
+}
+
+export async function getTranslationStrings() {
+    container.logger('Fetching current translation strings.');
+
+    const script = _readLuaFile('translated-languages.luau');
+    const result = await _executeLuau<TranslationKeys>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
+    if (!result) return await new Promise<TranslationKeys>((res) => setTimeout(async () => res(await getTranslationStrings()), 1000 * 30));
+
+    delete result.results[0]['ALTKEYS'];
 
     return result.results[0];
 }

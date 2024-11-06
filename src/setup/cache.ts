@@ -1,107 +1,33 @@
+import path from 'path';
 import NodeSchedule from "node-schedule";
-import { getLastOaklandsUpdate } from "@/lib/util";
-import { getMaterialLeaderboards } from "@/lib/util/querying";
-import { getMaterialStockMarket, getCurrentClassicShop, getCurrentShipLocation } from "@/lib/util/execute-luau";
-import container from "@/lib/container";
+import { getFilePaths } from "@/lib/util";
+import type CachePiece from '@/lib/structures/CachePiece';
 
-const cacheRunners = {
-    materialStockMarket: async () => {
-        const reset = ((currentHours: number) => {
-            const date = new Date();
+const paths = getFilePaths(path.join(process.cwd(), 'src/setup/cache'));
 
-            const nextResetHour = (Math.floor((currentHours + 2) / 6) * 6 + 4) % 24;
-            
-            date.setUTCHours(
-                nextResetHour === currentHours
-                    ? (nextResetHour + 6) % 24
-                    : nextResetHour,
-                0, 0, 0
-            );
+const runners: Function[] = [];
+const schedulers: Record<string, Function[]> = {};
 
-            if (nextResetHour === 4) date.setUTCDate(date.getUTCDate() + 1);
+for (const path of paths) {
+    try {
+        const piece: CachePiece = new (await import(path)).default;
 
-            return date;
-        })(new Date().getUTCHours());
+        runners.push(piece.run.bind(piece));
 
-        const existing = await container.redis.get('material_leaderboard');
-        if (existing) {
-            const [ next_reset ] = existing;
-            if (next_reset === reset.getTime()) return;
+        if (!schedulers[piece.schedule]) {
+            schedulers[piece.schedule] = [];
         }
 
-        const values = await getMaterialStockMarket();
-        await container.redis.set('material_stock_market', [reset.getTime(), values]);
-    },
-    classicShop: async () => {
-        const reset = new Date();
-
-        if (reset.getUTCHours() >= 16) {
-            reset.setUTCDate(reset.getUTCDate() + 1);
-        }
-
-        reset.setUTCHours(reset.getUTCHours() >= 16 ? 4 : 16, 0, 0, 0);
-
-        const existing = await container.redis.get('classic_shop');
-        if (existing) {
-            const [ next_reset ] = existing;
-            if (next_reset === reset.getTime()) return;
-        }
-
-        const values = await getCurrentClassicShop();
-        await container.redis.set('classic_shop', [reset.getTime(), values]);
-    },
-    materialLeaderboard: async () => {
-        const reset = new Date();
-        reset.setUTCDate(reset.getUTCDate() + 1);
-        reset.setUTCHours(0, 0, 0, 0);
-
-        const values = await getMaterialLeaderboards();
-
-        await container.redis.set('material_leaderboard', [reset.getTime(), new Date().getTime(), values]);
-    },
-    shipLocation: async () => {
-        const existing = await container.redis.get('ship_location');
-        if (existing) {
-            const [ next_reset ] = existing;
-            if (next_reset >= Date.now() / 1000) return;
-        }
-
-        const values = await getCurrentShipLocation();
-
-        await container.redis.set('ship_location', [values.next_reset, values.current_position, values.next_position])
-    },
-    oaklandsUpdateCheck: async () => {
-        const cachedTime = await container.redis.get('last_update_epoch');
-        const updateTime = await getLastOaklandsUpdate();
-        const updateTimeEpoch = Math.floor(updateTime.getTime() / 1000);
-
-        if (!cachedTime) {
-            container.events.emit('oaklands_update', { prev: 0, curr: updateTimeEpoch });
-            return;
-        }
-    
-        const lastUpdateEpoch = cachedTime;
-    
-        if (lastUpdateEpoch !== updateTimeEpoch) {
-            container.events.emit('oaklands_update', { prev: 0, curr: updateTimeEpoch });
-        }
+        schedulers[piece.schedule].push(piece.run.bind(piece));
     }
-};
+    catch (e) {
+        console.log(e);
+    }
+}
 
-await Promise.all(Object.entries(cacheRunners).map(([_, func]) => func()));
+await Promise.all(Object.entries(runners).map(([_, func]) => func()));
 
-NodeSchedule.scheduleJob('fetch_shiplocation', '*/60 * * * *', async () => await Promise.all([
-    cacheRunners.shipLocation()
-]))
-
-// Runs every 5th minute
-NodeSchedule.scheduleJob('refetch_leaderboard', '*/5 * * * *', async () => await Promise.all([
-    cacheRunners.oaklandsUpdateCheck(),
-    cacheRunners.materialLeaderboard()
-]));
-
-// Runs every 4th, 16th hour.
-NodeSchedule.scheduleJob('reset_classic_shop', '0 4,16 * * *', async () => await cacheRunners.classicShop());
-
-// Runs every 4th, 10th, 16th, 22nd hour.
-NodeSchedule.scheduleJob('reset_stockmarket', '0 4,10,16,22 * * *', async () => await cacheRunners.materialStockMarket());
+for (const [time, func] of Object.entries(schedulers)) {
+    const spec = time as NodeSchedule.Spec;
+    NodeSchedule.scheduleJob(spec, async() => await Promise.all(func));
+}
