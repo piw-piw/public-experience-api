@@ -36,24 +36,22 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    if (!(await container.redis.exists('material_leaderboard'))) {
+    const leaderboard = await container.redis.get('material_leaderboard');
+
+    if (!leaderboard)
         return res.json({
             error: "INTERNAL_ERROR",
-            message: "The contents for the leaderboard are currently not cached."
+            message: "The leaderboard is currently not cached."
         }, 500);
-    }
 
     const { currencyType } = res.req.query();
-    const [ reset_time, last_update, { currencies, leaderboards } ]: [
-        number, number, { currencies: string[]; leaderboards: Record<string, MaterialLeaderboardItemSchema[]>;}
-    ] = JSON.parse((await container.redis.get('material_leaderboard'))!);
-
-    if (!leaderboards[currencyType]) {
+    const [ reset_time, last_update, { currencies, leaderboards } ] = leaderboard;
+    
+    if (!leaderboards[currencyType])
         return res.json({
             error: "INVALID_CURRENCY",
             message: "The currency value provided does not have a leaderboard."
         }, 404);
-    }
 
     return res.json({
         reset_time: new Date(reset_time),

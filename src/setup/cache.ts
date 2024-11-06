@@ -23,14 +23,14 @@ const cacheRunners = {
             return date;
         })(new Date().getUTCHours());
 
-        if (await container.redis.exists('material_stock_market')) {
-            const [ next_reset ]: [number] = JSON.parse(await container.redis.get('material_stock_market') as string);
+        const existing = await container.redis.get('material_leaderboard');
+        if (existing) {
+            const [ next_reset ] = existing;
             if (next_reset === reset.getTime()) return;
         }
 
         const values = await getMaterialStockMarket();
-
-        await container.redis.set('material_stock_market', JSON.stringify([reset.getTime(), values]));
+        await container.redis.set('material_stock_market', [reset.getTime(), values]);
     },
     classicShop: async () => {
         const reset = new Date();
@@ -41,14 +41,14 @@ const cacheRunners = {
 
         reset.setUTCHours(reset.getUTCHours() >= 16 ? 4 : 16, 0, 0, 0);
 
-        if (await container.redis.exists('classic_shop')) {
-            const [ next_reset ]: [number] = JSON.parse(await container.redis.get('classic_shop') as string);
+        const existing = await container.redis.get('classic_shop');
+        if (existing) {
+            const [ next_reset ] = existing;
             if (next_reset === reset.getTime()) return;
         }
 
         const values = await getCurrentClassicShop();
-
-        await container.redis.set('classic_shop', JSON.stringify([reset.getTime(), values]));
+        await container.redis.set('classic_shop', [reset.getTime(), values]);
     },
     materialLeaderboard: async () => {
         const reset = new Date();
@@ -57,17 +57,18 @@ const cacheRunners = {
 
         const values = await getMaterialLeaderboards();
 
-        await container.redis.set('material_leaderboard', JSON.stringify([reset.getTime(), new Date().getTime(), values]));
+        await container.redis.set('material_leaderboard', [reset.getTime(), new Date().getTime(), values]);
     },
     shipLocation: async () => {
-        if (await container.redis.exists('ship_location')) {
-            const [ next_reset ]: [number] = JSON.parse(await container.redis.get('ship_location') as string);
+        const existing = await container.redis.get('ship_location');
+        if (existing) {
+            const [ next_reset ] = existing;
             if (next_reset >= Date.now() / 1000) return;
         }
 
         const values = await getCurrentShipLocation();
 
-        await container.redis.set('ship_location', JSON.stringify([values.next_reset, values.current_position, values.next_position]))
+        await container.redis.set('ship_location', [values.next_reset, values.current_position, values.next_position])
     },
     oaklandsUpdateCheck: async () => {
         const cachedTime = await container.redis.get('last_update_epoch');
@@ -79,7 +80,7 @@ const cacheRunners = {
             return;
         }
     
-        const lastUpdateEpoch = parseInt(cachedTime!);
+        const lastUpdateEpoch = cachedTime;
     
         if (lastUpdateEpoch !== updateTimeEpoch) {
             container.events.emit('oaklands_update', { prev: 0, curr: updateTimeEpoch });

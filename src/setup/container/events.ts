@@ -15,11 +15,11 @@ events.on('oaklands_update', async ({ curr }: { prev: number; curr: number; }) =
     const shopItems = await getCurrentStoreItems();
 
     if (rockRNG) {
-        await container.redis.set('current_rock_rng', JSON.stringify(rockRNG));
+        await container.redis.set('current_rock_rng', rockRNG);
     }
 
     if (shopItems) {
-        await container.redis.set('store_items', JSON.stringify(shopItems));
+        await container.redis.set('store_items', shopItems);
     }
 });
 

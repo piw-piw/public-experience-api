@@ -27,14 +27,13 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    if (!(await container.redis.exists('store_items'))) {
+    const stores = await container.redis.get('store_items');
+
+    if (!stores)
         return res.json({
             error: "INTERNAL_ERROR",
             message: "The contents for all stores are currently not cached."
         }, 500);
-    }
-
-    const stores: StoresItems = JSON.parse((await container.redis.get('store_items'))!);
 
     return res.json({
         stores: [
