@@ -27,7 +27,6 @@ for (const path of paths) {
 
 await Promise.all(Object.entries(runners).map(([_, func]) => func()));
 
-for (const [time, func] of Object.entries(schedulers)) {
-    const spec = time as NodeSchedule.Spec;
+for (const [spec, func] of Object.entries(schedulers)) {
     NodeSchedule.scheduleJob(spec, async() => await Promise.all(func));
 }
