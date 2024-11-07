@@ -1,5 +1,4 @@
 import { createRoute } from "@hono/zod-openapi";
-import type { BaseMaterial, MaterialStockMarket } from "@/lib/types/experience";
 import StockMarketMaterial, { StockMarketMaterialExample } from "@/lib/schemas/Oaklands/StockMarketMaterial";
 import oaklands from "@/api/routes/oaklands";
 import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
@@ -46,10 +45,9 @@ oaklands.openapi(route, async (res) => {
 
     
     const materialType = res.req.param('materialType');
-    const [ _, items ]: [number, MaterialStockMarket] = stockMarket;
+    const [ _, items ] = stockMarket;
 
-    const materials = Object.values(items)
-        .reduce((acc, curr) => ({ ...acc, ...curr }), {});
+    const materials = Object.values(items).reduce((acc, curr) => ({ ...acc, ...curr }), {});
     const material = materials[materialType];
 
     if (!material)
