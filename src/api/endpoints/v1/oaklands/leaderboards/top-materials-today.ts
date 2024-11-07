@@ -45,7 +45,7 @@ oaklands.openapi(route, async (res) => {
         }, 500);
 
     const { currencyType } = res.req.query();
-    const [ reset_time, last_update, { currencies, leaderboards } ] = leaderboard;
+    const [ reset_time, last_update, currencies, leaderboards ] = leaderboard;
     
     if (!leaderboards[currencyType])
         return res.json({

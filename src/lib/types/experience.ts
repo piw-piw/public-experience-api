@@ -7,7 +7,7 @@ export type BaseMaterial<T extends string = string> = {
         type: T;
         base_value: number;
         current_value: number;
-    }[]
+    }[];
 };
 
 export interface MaterialStockMarket {

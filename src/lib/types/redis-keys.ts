@@ -17,7 +17,8 @@ export interface RedisKeys {
     material_leaderboard: [
         number,
         number,
-        { currencies: string[]; leaderboards: Record<string, MaterialLeaderboardItemSchema[]>; }
+        string[],
+        Record<string, MaterialLeaderboardItemSchema[]>
     ];
     store_items: StoresItems;
     ship_location: [number, number, number];

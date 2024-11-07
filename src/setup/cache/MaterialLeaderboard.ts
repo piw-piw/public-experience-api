@@ -13,6 +13,6 @@ export default class MaterialStockMarket extends CachePiece {
 
         const values = await getMaterialLeaderboards();
 
-        await this.container.redis.set('material_leaderboard', [reset.getTime(), new Date().getTime(), values]);
+        await this.container.redis.set('material_leaderboard', [reset.getTime(), new Date().getTime(), values.currencies, values.leaderboards]);
     }
 }
