@@ -13,6 +13,8 @@ export default class ShipLocation extends CachePiece {
             if (next_reset >= Date.now() / 1000) return;
         }
 
+        this.container.logger('Fetching updated pirate ship location.');
+
         const values = await getCurrentShipLocation();
 
         await this.container.redis.set('ship_location', [values.next_reset, values.current_position, values.next_position]);

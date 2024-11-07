@@ -119,8 +119,6 @@ export async function getMonthlyCashEarnedLeaderboardPage(values: { currency_typ
  * @returns {Promise<{ currencies: string[], leaderboards: Record<string, MaterialLeaderboardItemSchema[]>}>}
  */
 export async function getMaterialLeaderboards(): Promise<{ currencies: string[]; leaderboards: Record<string, MaterialLeaderboardItemSchema[]>; }> {
-    container.logger('Fetching the current ore material leaderboard.');
-
     const client = await container.database.connect();
 
     await client.query('BEGIN READ ONLY;');

@@ -21,6 +21,8 @@ export default class ClassicShop extends CachePiece {
             if (next_reset === reset.getTime()) return;
         }
 
+        this.container.logger('Fetching updated classic shop.');
+
         const values = await getCurrentClassicShop();
         await this.container.redis.set('classic_shop', [reset.getTime(), values]);
     }

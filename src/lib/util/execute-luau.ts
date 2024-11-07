@@ -122,8 +122,6 @@ async function _executeLuau<Data extends Object>(script: string, info: { univers
  * @returns {Promise<MaterialStockMarket>}
  */
 export async function getMaterialStockMarket(): Promise<MaterialStockMarket> {
-    container.logger('Fetching the current material stock market.');
-
     const script = _readLuaFile('stock-market.luau');
 
     const result = await _executeLuau<MaterialStockMarket>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
@@ -137,8 +135,6 @@ export async function getMaterialStockMarket(): Promise<MaterialStockMarket> {
  * @returns {Promise<StoreItem[]>}
  */
 export async function getCurrentClassicShop(): Promise<StoreItem[]> {
-    container.logger('Fetching the current classic shop.');
-
     const script = _readLuaFile('classic-shop.luau');
 
     const result = await _executeLuau<StoreItem[]>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
@@ -152,8 +148,6 @@ export async function getCurrentClassicShop(): Promise<StoreItem[]> {
  * @returns {Promise<RockVariantRNG>}
  */
 export async function getCurrentRockRNG(): Promise<RockVariantRNG> {
-    container.logger('Fetching the current ore rarity list.');
-
     const script = _readLuaFile('ore-rarity.luau');
 
     const result = await _executeLuau<RockVariantRNG>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
@@ -167,8 +161,6 @@ export async function getCurrentRockRNG(): Promise<RockVariantRNG> {
  * @returns {Promise<StoresItems>}
  */
 export async function getCurrentStoreItems(): Promise<StoresItems> {
-    container.logger('Fetching the all of the current shop items.');
-
     const script = _readLuaFile('store-items.luau');
 
     const result = await _executeLuau<StoresItems>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
@@ -182,8 +174,6 @@ export async function getCurrentStoreItems(): Promise<StoresItems> {
  * @returns {Promise<ShipLocation>}
  */
 export async function getCurrentShipLocation(): Promise<ShipLocation> {
-    container.logger('Fetching current pirate ship location.');
-
     const script = _readLuaFile('ship-location.luau');
 
     const result = await _executeLuau<ShipLocation>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
@@ -197,8 +187,6 @@ export async function getCurrentShipLocation(): Promise<ShipLocation> {
  * @returns {Promise<TranslationKeys>}
  */
 export async function getTranslationStrings(): Promise<TranslationKeys> {
-    container.logger('Fetching current translation strings.');
-
     const script = _readLuaFile('translated-languages.luau');
     const result = await _executeLuau<TranslationKeys>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
     if (!result) return await new Promise<TranslationKeys>((res) => setTimeout(async () => res(await getTranslationStrings()), 1000 * 30));

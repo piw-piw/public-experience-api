@@ -32,6 +32,8 @@ export default class MaterialStockMarket extends CachePiece {
             if (next_reset === reset.getTime()) return;
         }
 
+        this.container.logger('Fetching updated material stock market.');
+
         const values = await getMaterialStockMarket();
         await this.container.redis.set('material_stock_market', [reset.getTime(), values]);
     }
