@@ -1,5 +1,5 @@
 import type { MaterialLeaderboardItemSchema } from "@/lib/schemas/Oaklands/MaterialLeaderboardItem";
-import type { ShopItemchema } from "../schemas/Oaklands/ShopItem";
+import type { ShopItemchema } from "@/lib/schemas/Oaklands/ShopItem";
 import type {
     MaterialStockMarket,
     RockVariantRNG,
