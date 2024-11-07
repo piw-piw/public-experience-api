@@ -6,7 +6,7 @@ import container from "@/lib/container";
 
 const route = createRoute({
     method: "get",
-    path: "/newsletter/{version}",
+    path: "/newsletters/{id}",
     tags: ['Oaklands'],
     description: "Fetch a news letter.",
     parameters: [
@@ -29,7 +29,7 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    const { version } = res.req.param();
+    const { id } = res.req.param();
 
     const newsletters = await container.redis.get('news_letters');
 
@@ -41,7 +41,7 @@ oaklands.openapi(route, async (res) => {
 
     const { latest_page, pages } = newsletters;
 
-    if (version.toLowerCase() === "latest") {
+    if (id.toLowerCase() === "latest") {
         const page = pages[latest_page];
         
         if (!page)
@@ -53,7 +53,7 @@ oaklands.openapi(route, async (res) => {
         return res.json(page, 200);
     }
 
-    const page = pages[version];
+    const page = pages[id];
 
     if (!page)
         return res.json({
