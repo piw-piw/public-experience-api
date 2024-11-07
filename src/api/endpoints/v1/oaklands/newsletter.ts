@@ -10,7 +10,7 @@ const route = createRoute({
     tags: ['Oaklands'],
     description: "Fetch a news letter.",
     parameters: [
-        { name: 'version', in: 'path', default: "latest", required: true }
+        { name: 'id', in: 'path', default: "latest", required: true }
     ],
     responses: {
         200: {
