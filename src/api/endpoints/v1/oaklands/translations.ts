@@ -9,7 +9,7 @@ const route = createRoute({
     method: "get",
     path: "/translations/en_us",
     tags: ['Oaklands'],
-    description: "Fetch an image asset.",
+    description: "Fetch all of the current en_us translation strings.",
     parameters: [
         {
             name: 'returnStrings',
