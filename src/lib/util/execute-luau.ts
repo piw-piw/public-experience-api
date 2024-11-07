@@ -11,6 +11,7 @@ import type {
     StoreItem,
     StoresItems,
     TranslationKeys,
+    Newsletters
 } from '@/lib/types/experience';
 import container from "@/lib/container";
 
@@ -74,7 +75,7 @@ async function _poll<Data extends Object>(info: { universeId: number; placeId: n
             if (response.statusCode === 429) {
                 const reset = parseInt(response.headers.get('x-ratelimit-reset')!);
 
-                container.logger(`Luau execution polling ratelimit was exhausted. Repolling similar method in ${reset} seconds.`);
+                container.logger(`Luau execution polling ratelimit was exhausted. Repolling original request in ${reset} seconds.`);
                 return await new Promise((r) => setTimeout(async () => r(_poll<Data>(info)), reset * 1000));
             }
 
@@ -188,11 +189,25 @@ export async function getCurrentShipLocation(): Promise<ShipLocation> {
  */
 export async function getTranslationStrings(): Promise<TranslationKeys> {
     const script = _readLuaFile('translated-languages.luau');
+
     const result = await _executeLuau<TranslationKeys>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
     if (!result) return await new Promise<TranslationKeys>((res) => setTimeout(async () => res(await getTranslationStrings()), 1000 * 30));
 
     // Hoofer said this was deprecated so byebbye
     delete result.results[0]['ALTKEYS'];
+
+    return result.results[0];
+}
+
+/**
+ * Fetch all of the available newsletters.
+ * @returns {Promise<Newsletters>}
+ */
+export async function getCurrentNewsletters(): Promise<Newsletters> {
+    const script = _readLuaFile('newsletters.luau');
+
+    const result = await _executeLuau<Newsletters>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
+    if (!result) return await new Promise<Newsletters>((res) => setTimeout(async () => res(await getCurrentNewsletters()), 1000 * 30));
 
     return result.results[0];
 }

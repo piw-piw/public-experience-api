@@ -1,5 +1,6 @@
 import EventEmitter from 'events';
 import {
+    getCurrentNewsletters,
     getCurrentRockRNG,
     getCurrentStoreItems,
     getTranslationStrings
@@ -15,20 +16,32 @@ events.on('registered_endpoints', async () => {
 events.on('oaklands_update', async ({ curr }: { prev: number; curr: number; }) => {
     await container.redis.set('last_update_epoch', Math.floor(curr));
 
-    const rockRNG = await getCurrentRockRNG();
-    const shopItems = await getCurrentStoreItems();
+    container.logger('Fetching latest news letters.');
+    const newsletters = await getCurrentNewsletters();
+    
+    if (newsletters) {
+        await container.redis.set('news_letters', newsletters);
+    }
+
+    container.logger('Fetching latest translation strings.');
     const translationStrings = await getTranslationStrings();
 
-    if (rockRNG) {
-        await container.redis.set('current_rock_rng', rockRNG);
+    if (translationStrings) {
+        await container.redis.set('translation_strings', translationStrings);
     }
+
+    container.logger('Fetching latest shop items.');
+    const shopItems = await getCurrentStoreItems();
 
     if (shopItems) {
         await container.redis.set('store_items', shopItems);
     }
 
-    if (translationStrings) {
-        await container.redis.set('translation_strings', translationStrings);
+    container.logger('Fetching latest rock rng.');
+    const rockRNG = await getCurrentRockRNG();
+
+    if (rockRNG) {
+        await container.redis.set('current_rock_rng', rockRNG);
     }
 });
 

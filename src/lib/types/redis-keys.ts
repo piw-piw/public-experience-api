@@ -1,10 +1,11 @@
 import type { MaterialLeaderboardItemSchema } from "@/lib/schemas/Oaklands/MaterialLeaderboardItem";
-import type { ShopItemchema } from "@/lib/schemas/Oaklands/ShopItem";
 import type {
     MaterialStockMarket,
     RockVariantRNG,
     StoresItems,
+    StoreItem,
     TranslationKeys,
+    Newsletters
 } from "@/lib/types/experience";
 
 export interface RedisKeys {
@@ -22,7 +23,8 @@ export interface RedisKeys {
     ];
     store_items: StoresItems;
     ship_location: [number, number, number];
-    classic_shop: [number, ShopItemchema[]];
+    classic_shop: [number, StoreItem[]];
     last_update_epoch: number;
     translation_strings: TranslationKeys;
+    news_letters: Newsletters;
 }

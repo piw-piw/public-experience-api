@@ -40,3 +40,40 @@ export type ShipLocation = {
 };
 
 export type TranslationKeys = Record<string, Record<string, string>>;
+
+type NewsletterParagraph = {
+    type: "Paragraph";
+    text: string;
+};
+
+type NewsletterImage = {
+    type: "Image";
+    image_id: string;
+};
+
+type NewsletterImageCarousel = {
+    type: "ImageCarousel";
+    image_ids: string[];
+};
+
+type NewsletterVideo = {
+    type: "Video";
+    video_id: string;
+};
+
+type NewsletterSection = {
+    header: string;
+    content: (NewsletterParagraph | NewsletterImage | NewsletterImageCarousel | NewsletterVideo)[]; 
+};
+
+interface NewsletterPage {
+    banner_image_id: string;
+    header_text: string;
+    subheader_text: string;
+    sections: NewsletterSection[];
+}
+
+export interface Newsletters {
+    latest_page: string;
+    pages: Record<string, NewsletterPage>;
+}
