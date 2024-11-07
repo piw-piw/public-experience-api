@@ -4,6 +4,7 @@ import type {
     MaterialStockMarket,
     RockVariantRNG,
     StoresItems,
+    TranslationKeys,
 } from "@/lib/types/experience";
 
 export interface RedisKeys {
@@ -22,4 +23,5 @@ export interface RedisKeys {
     ship_location: [number, number, number];
     classic_shop: [number, ShopItemchema[]];
     last_update_epoch: number;
+    translation_strings: TranslationKeys;
 }

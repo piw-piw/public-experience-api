@@ -192,13 +192,18 @@ export async function getCurrentShipLocation(): Promise<ShipLocation> {
     return result.results[0];
 }
 
-export async function getTranslationStrings() {
+/**
+ * Fetch the current translation strings.
+ * @returns {Promise<TranslationKeys>}
+ */
+export async function getTranslationStrings(): Promise<TranslationKeys> {
     container.logger('Fetching current translation strings.');
 
     const script = _readLuaFile('translated-languages.luau');
     const result = await _executeLuau<TranslationKeys>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
     if (!result) return await new Promise<TranslationKeys>((res) => setTimeout(async () => res(await getTranslationStrings()), 1000 * 30));
 
+    // Hoofer said this was deprecated so byebbye
     delete result.results[0]['ALTKEYS'];
 
     return result.results[0];
