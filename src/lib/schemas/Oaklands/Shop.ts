@@ -18,6 +18,7 @@ export const ShopExample: ShopSchema = {
             type: "Gift",
             identifier: "TeamFlag",
             image: null,
+            description: ""
         }
     ]
 };

@@ -7,6 +7,7 @@ const ShopItem = z.object({
     type: z.string(),
     identifier: z.string(),
     image: z.nullable(z.string()).optional(),
+    description: z.string(),
 });
 
 export type ShopItemchema = z.infer<typeof ShopItem>;
