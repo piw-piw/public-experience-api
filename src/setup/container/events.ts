@@ -1,5 +1,6 @@
 import EventEmitter from 'events';
 import {
+    getCurrentItems,
     getCurrentNewsletters,
     getCurrentRockRNG,
     getCurrentStoreItems,
@@ -14,7 +15,12 @@ events.on('registered_endpoints', async () => {
 });
 
 events.on('oaklands_update', async ({ curr }: { prev: number; curr: number; }) => {
-    await container.redis.set('last_update_epoch', Math.floor(curr));
+    container.logger('Fetching current item details.');
+    const itemDetails = await getCurrentItems();
+
+    if (itemDetails) {
+        await container.redis.set('item_details', itemDetails);
+    }
 
     container.logger('Fetching latest news letters.');
     const newsletters = await getCurrentNewsletters();
@@ -43,6 +49,10 @@ events.on('oaklands_update', async ({ curr }: { prev: number; curr: number; }) =
     if (rockRNG) {
         await container.redis.set('current_rock_rng', rockRNG);
     }
+
+    // Only set it after everything runs, in the event something fails.
+    // This forces it to recache after 5 minutes anyway.
+    await container.redis.set('last_update_epoch', Math.floor(curr));
 });
 
 container.events = events;

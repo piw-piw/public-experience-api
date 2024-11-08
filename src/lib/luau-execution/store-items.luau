@@ -11,10 +11,10 @@ local StoreItems = {}
 function RemoveDupes(items)
 	local Items = {}
 	local ItemCheck = {}
-	
+
 	for _, item in (items) do
 		local ItemName = item.Name
-		
+
 		if (item:GetAttribute("StagingOnly")) then continue end
 		if (ItemCheck[ItemName]) then continue end
 
@@ -40,10 +40,10 @@ for _, store in pairs(Stores) do
 
 	if (not Items) then continue end
 	if (store.Name == "Classic Store") then continue end
-	
+
 	local StoreName = FormatName(store.Name)
 	local ItemsList = RemoveDupes(Items:GetChildren())
-	
+
 	if (#ItemsList == 0) then continue end
 
 	if (not StoreItems[StoreName]) then
@@ -51,22 +51,10 @@ for _, store in pairs(Stores) do
 	end
 
 	for _, item in ItemsList do	
-		local ItemInfo = game.ServerScriptService.Server.Content.Object:FindFirstChild(item, true)
-		
-		if (ItemInfo and ItemInfo:FindFirstChild("Store")) then
-			local ItemDetails = require(ItemInfo.Store).new()
-			local TranslatedName = Translations:GetTranslation(item)
-			local CurrencyType = ItemDetails.CustomCurrency or "Cash"
-			
-			table.insert(StoreItems[StoreName], {
-				identifier = item,
-				name = TranslatedName,
-				currency = CurrencyType,
-				price = ItemDetails.Price,
-				type = ItemDetails.ConvertType:lower()
-			})
-		end
+		table.insert(StoreItems[StoreName], item)
 	end
 end
+
+print (StoreItems)
 
 return StoreItems

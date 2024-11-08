@@ -43,7 +43,7 @@ export type StoreItem = {
     type: string;
 };
 
-export type StoresItems = Record<string, StoreItem[]>;
+export type StoresItems = Record<string, string[]>;
 
 export type ShipLocation = {
     /** Where the ship current is. */
@@ -86,9 +86,34 @@ interface NewsletterPage {
     header_text: string;
     subheader_text: string;
     sections: NewsletterSection[];
-}
+};
 
 export interface Newsletters {
     latest_page: string;
     pages: Record<string, NewsletterPage>;
-}
+};
+
+type ItemDetails = {
+    name: string;
+    identifier: string;
+    description: string;
+};
+
+type ItemStoreInfo = {
+    currency: string;
+    price: number;
+    type: string;
+};
+
+type ItemStats = Record<string, any>;
+
+type ItemGiftInfo = {
+    unbox_epoch: number;
+};
+
+export type ItemInformation = Record<string, {
+    details: ItemDetails;
+    store?: ItemStoreInfo,
+    item?: ItemStats;
+    gift?: ItemGiftInfo;
+}>;

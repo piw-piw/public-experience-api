@@ -11,7 +11,8 @@ import type {
     StoreItem,
     StoresItems,
     TranslationKeys,
-    Newsletters
+    Newsletters,
+    ItemInformation
 } from '@/lib/types/experience';
 import container from "@/lib/container";
 
@@ -133,13 +134,13 @@ export async function getMaterialStockMarket(): Promise<MaterialStockMarket> {
 
 /**
  * Get the current items in the classic shop.
- * @returns {Promise<StoreItem[]>}
+ * @returns {Promise<string[]>}
  */
-export async function getCurrentClassicShop(): Promise<StoreItem[]> {
+export async function getCurrentClassicShop(): Promise<string[]> {
     const script = _readLuaFile('classic-shop.luau');
 
-    const result = await _executeLuau<StoreItem[]>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
-    if (!result) return await new Promise<any>((res) => setTimeout(async () => res(await getCurrentClassicShop()), 1000 * 30));
+    const result = await _executeLuau<string[]>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
+    if (!result) return await new Promise<string[]>((res) => setTimeout(async () => res(await getCurrentClassicShop()), 1000 * 30));
 
     return result.results[0];
 }
@@ -208,6 +209,19 @@ export async function getCurrentNewsletters(): Promise<Newsletters> {
 
     const result = await _executeLuau<Newsletters>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
     if (!result) return await new Promise<Newsletters>((res) => setTimeout(async () => res(await getCurrentNewsletters()), 1000 * 30));
+
+    return result.results[0];
+}
+
+/**
+ * Fetch all of the current items in Oaklands with their information.
+ * @returns {Promise<getCurrentItems>}
+ */
+export async function getCurrentItems(): Promise<ItemInformation> {
+    const script = _readLuaFile('item-details.luau');
+
+    const result = await _executeLuau<ItemInformation>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
+    if (!result) return await new Promise<ItemInformation>((res) => setTimeout(async () => res(await getCurrentItems()), 1000 * 30));
 
     return result.results[0];
 }

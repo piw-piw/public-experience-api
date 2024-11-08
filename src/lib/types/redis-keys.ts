@@ -5,7 +5,8 @@ import type {
     StoresItems,
     StoreItem,
     TranslationKeys,
-    Newsletters
+    Newsletters,
+    ItemInformation
 } from "@/lib/types/experience";
 
 export interface RedisKeys {
@@ -37,13 +38,15 @@ export interface RedisKeys {
     /**
      * The current classic shop.
      * 0 = Reset time in an epoch.
-     * 2 = The current store items.
+     * 1 = The current store items.
      */
-    classic_shop: [number, StoreItem[]];
+    classic_shop: [number, string[]];
     /** The last time Oaklands was updated as an epoch. */
     last_update_epoch: number;
     /** All of the current translation strings. */
     translation_strings: TranslationKeys;
     /** ALl of the available newsletters. */
     news_letters: Newsletters;
+    /** All of the items in Oaklands */
+    item_details: ItemInformation;
 }
