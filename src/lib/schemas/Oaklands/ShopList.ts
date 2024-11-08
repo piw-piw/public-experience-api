@@ -6,4 +6,4 @@ const ShopList = z.object({
 
 export type ShopListSchema = z.infer<typeof ShopList>;
 
-export default ShopList
+export default ShopList;

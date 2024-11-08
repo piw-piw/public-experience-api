@@ -43,6 +43,6 @@ export const MonthlyCashEarnedLeaderboardExample: MonthlyCashEarnedLeaderboardSc
             cash_amount: 9777718
         }
     ]
-}
+};
 
 export default MonthlyCashEarnedLeaderboard;

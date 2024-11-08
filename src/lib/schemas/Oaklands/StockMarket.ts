@@ -29,6 +29,6 @@ export const StockMarketExample: StockMarketSchema = {
     },
     ores: {
     }
-}
+};
 
 export default StockMarket;

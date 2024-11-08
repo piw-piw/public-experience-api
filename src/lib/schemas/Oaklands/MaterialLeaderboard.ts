@@ -41,6 +41,6 @@ export const MaterialLeaderboardExample: MaterialLeaderboardSchema = {
             value: 4894777
         }
     ]
-}
+};
 
 export default MaterialLeaderboard;

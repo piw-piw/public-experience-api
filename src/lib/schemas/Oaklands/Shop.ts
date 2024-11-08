@@ -20,6 +20,6 @@ export const ShopExample: ShopSchema = {
             image: null,
         }
     ]
-}
+};
 
 export default Shop;
