@@ -50,8 +50,8 @@ oaklands.openapi(route, async (res) => {
 
         const [ reset_time, items ] = shopItems;
         const details = items.map((i) => {
-            const details = itemDetails[i].details;
-            const store = itemDetails[i].store;
+            const details = itemDetails[i]?.details;
+            const store = itemDetails[i]?.store;
 
             if (!details || !store) return undefined;
 
@@ -84,8 +84,8 @@ oaklands.openapi(route, async (res) => {
         }, 404);
 
     const details = items.map((i) => {
-        const details = itemDetails[i].details;
-        const store = itemDetails[i].store;
+        const details = itemDetails[i]?.details;
+        const store = itemDetails[i]?.store;
 
         if (!details || !store) return undefined;
 
