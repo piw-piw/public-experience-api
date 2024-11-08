@@ -58,20 +58,16 @@ export function getImagePath(type: string, identifier: string): string {
  * @param type The type of item.
  * @param identifier The name of the item.
  * @param extension The extension of the file.
- * @returns {ArrayBuffer}
+ * @returns {ArrayBuffer | null}
  */
-export function readAssetImageBuffer(type: string, identifier: string, extension: string): ArrayBuffer {
+export function readAssetImageBuffer(type: string, identifier: string, extension: string): ArrayBuffer | null {
     let dir = path.join(process.cwd(), 'assets', type, `${identifier}.${extension}`);
-    if (!existsSync(dir)) dir =path.join(process.cwd(), 'assets', 'no-image.png');
+    if (!existsSync(dir)) dir = path.join(process.cwd(), 'assets', 'no-image.png');
     
     const buffer = readFileSync(dir);
+    const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
 
-    const arrayBuffer = new ArrayBuffer(buffer.length);
-    const view = new Uint8Array(arrayBuffer);
+    if (arrayBuffer instanceof SharedArrayBuffer) return null;
 
-    for (let i = 0; i < buffer.length; ++i) {
-        view[i] = buffer[i];
-    }
-
-    return arrayBuffer;
+    return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) as ArrayBuffer;
 }
