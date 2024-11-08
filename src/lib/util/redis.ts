@@ -1,6 +1,11 @@
 import container from "@/lib/container";
 import { type RedisKeys } from '@/lib/types/redis-keys';
 
+/**
+ * Convert a string to a JSON object.
+ * @param input The string to convert
+ * @returns {Result}
+ */
 function _toJSON<Result extends Object>(input: string) {
     try {
         const json = JSON.parse(input) as Result;

@@ -9,22 +9,41 @@ import type {
 } from "@/lib/types/experience";
 
 export interface RedisKeys {
-    material_stock_market: [
-        /** The time that the stock market will reset, in epoch. */
-        number,
-        MaterialStockMarket
-    ];
+    /**
+     * The current material stock market.
+     * 0 = Reset time in an epoch.
+     * 1 = The current stock market data.
+     */
+    material_stock_market: [ number, MaterialStockMarket ];
+    /** The current rock rng values. */
     current_rock_rng: RockVariantRNG;
-    material_leaderboard: [
-        number,
-        number,
-        string[],
-        Record<string, MaterialLeaderboardItemSchema[]>
-    ];
+    /**
+     * The last cached material leaderboard.
+     * 0 = Reset time in an epoch.
+     * 1 = Last cache time in an epoch.
+     * 2 = A list of currencies.
+     * 3 = The material leaderboard data.
+    */
+    material_leaderboard: [ number, number, string[], Record<string, MaterialLeaderboardItemSchema[]> ];
+    /** All of the current store items (minus classic shop and removed stores) in Oaklands. */
     store_items: StoresItems;
+    /**
+     * The current ship location.
+     * 0 = Reset time in an epoch.
+     * 1 = The current position location number (0, 1, 2, 3, ...)
+     * 2 = The next position location number (0, 1, 2, 3, ...)
+     */
     ship_location: [number, number, number];
+    /**
+     * The current classic shop.
+     * 0 = Reset time in an epoch.
+     * 2 = The current store items.
+     */
     classic_shop: [number, StoreItem[]];
+    /** The last time Oaklands was updated as an epoch. */
     last_update_epoch: number;
+    /** All of the current translation strings. */
     translation_strings: TranslationKeys;
+    /** ALl of the available newsletters. */
     news_letters: Newsletters;
 }

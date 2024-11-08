@@ -1,11 +1,18 @@
 export type BaseMaterial<T extends string = string> = {
+    /** The name of the material. */
     name: string;
+    /** The currency that the material sells for. */
     currency_type: string;
+    /** The last percentage the material sold for. */
     last_difference: number;
+    /** The current percentage the material sells for. */
     current_difference: number;
     values: {
+        /** The type of material. */
         type: T;
+        /** The value without difference multipliers. */
         base_value: number;
+        /** The value based on the base_value and current_difference. */
         current_value: number;
     }[];
 };
@@ -24,18 +31,26 @@ interface RockVariant {
 export type RockVariantRNG = Record<string, Record<string, RockVariant>>;
 
 export type StoreItem = {
+    /** The name of the item. */
     name: string;
+    /** The currency the item sells for. */
     currency: string;
+    /** The cost of the item. */
     price: number;
+    /** A non-translation string identifier for other APIs. */
     identifier: string;
+    /** The type of item. */
     type: string;
 };
 
 export type StoresItems = Record<string, StoreItem[]>;
 
 export type ShipLocation = {
+    /** Where the ship current is. */
     current_position: number;
+    /** Where the ship will be next. */
     next_position: number;
+    /** The time the ship will move. */
     next_reset: number;
 };
 
