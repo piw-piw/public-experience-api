@@ -41,13 +41,26 @@ export async function getLastOaklandsUpdate(): Promise<Date> {
     return details.data.updateTime;
 }
 
-export function getImagePath(type: string, identifier: string) {
+/**
+ * Fetch the path of an Oaklands item image.
+ * @param type The type of item.
+ * @param identifier The name of the item.
+ * @returns {string}
+ */
+export function getImagePath(type: string, identifier: string): string {
     const dir = path.join(process.cwd(), 'assets', type, `${identifier}.png`);
     if (!existsSync(dir)) return path.posix.join(`no-image.png`);
     return path.posix.join(type, `${identifier}.png`);
 }
 
-export function readAssetImageBuffer(type: string, identifier: string, extension: string) {
+/**
+ * Fetch the image buffer for an Oaklands item image.
+ * @param type The type of item.
+ * @param identifier The name of the item.
+ * @param extension The extension of the file.
+ * @returns {ArrayBuffer}
+ */
+export function readAssetImageBuffer(type: string, identifier: string, extension: string): ArrayBuffer {
     let dir = path.join(process.cwd(), 'assets', type, `${identifier}.${extension}`);
     if (!existsSync(dir)) dir =path.join(process.cwd(), 'assets', 'no-image.png');
     
@@ -57,7 +70,7 @@ export function readAssetImageBuffer(type: string, identifier: string, extension
     const view = new Uint8Array(arrayBuffer);
 
     for (let i = 0; i < buffer.length; ++i) {
-      view[i] = buffer[i];
+        view[i] = buffer[i];
     }
 
     return arrayBuffer;
