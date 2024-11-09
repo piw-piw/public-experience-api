@@ -8,7 +8,7 @@ const route = createRoute({
     method: "get",
     path: "/items/{identifier}",
     tags: ['Oaklands'],
-    description: "List all of the available stores.",
+    description: "Fetch information on an item.",
     parameters: [
         { name: 'identifier', in: 'path', required: true }
     ],
