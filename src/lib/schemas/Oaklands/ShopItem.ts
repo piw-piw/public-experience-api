@@ -10,6 +10,6 @@ const ShopItem = z.object({
     description: z.string(),
 });
 
-export type ShopItemchema = z.infer<typeof ShopItem>;
+export type ShopItemSchema = z.infer<typeof ShopItem>;
 
 export default ShopItem;
