@@ -1,8 +1,7 @@
 import { createRoute } from "@hono/zod-openapi";
 import oaklands from "@/api/routes/oaklands";
 import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
-import type { StoresItems } from "@/lib/types/experience";
-import ShopList from "@/lib/schemas/Oaklands/ShopList";
+import ItemKeys from "@/lib/schemas/Oaklands/ItemKeys";
 import container from "@/lib/container";
 
 const route = createRoute({
@@ -13,7 +12,7 @@ const route = createRoute({
     responses: {
         200: {
             content: {
-                "application/json": { schema: ShopList }
+                "application/json": { schema: ItemKeys }
             },
             description: "OK"
         },
@@ -35,10 +34,10 @@ oaklands.openapi(route, async (res) => {
             message: "The contents for all stores are currently not cached."
         }, 500);
 
-    return res.json({
-        stores: [
-            ...Object.keys(stores),
-            "classic-shop"
-        ]
-    }, 200);
+    const keys = [
+        ...Object.keys(stores),
+        "classic-shop"
+    ]
+    
+    return res.json({ keys }, 200);
 });
