@@ -12,6 +12,8 @@ for (const path of paths) {
     try {
         const piece: CachePiece = new (await import(path)).default;
 
+        if (!piece.enabled) continue;
+
         runners.push(piece.run.bind(piece));
 
         if (!schedulers[piece.schedule]) {

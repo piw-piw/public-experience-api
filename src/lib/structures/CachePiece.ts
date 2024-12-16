@@ -5,6 +5,8 @@ export default abstract class CachePiece {
     public readonly schedule: string;
     /** A reference to the container piece. */
     public readonly container: Container;
+    /** Whether or not the cache piece is enabled. */
+    public readonly enabled: boolean = true;
 
     constructor(options: { schedule: string; }) {
         this.schedule = options.schedule;
