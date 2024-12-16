@@ -1,3 +1,5 @@
+local HTTPService = game:GetService("HttpService")
+
 local NewsLetter = require(game.ReplicatedFirst.Newsletter)
 local LatestPage = NewsLetter:GetLatestNewsletter()
 
@@ -75,4 +77,4 @@ for _, Page in pairs(Pages) do
 	Details.pages[PageName] = FormatLetter(PageInfo)
 end
 
-return Details
+return HTTPService:JSONEncode(Details)

@@ -62,11 +62,11 @@ async function _poll<Data extends Object>(info: { universeId: number; placeId: n
         if (typeof executedTask.output !== 'object') {
             throw new Error('Unexpected return type');
         }
-    
+
         if (executedTask.output === null) {
             throw new Error('Unexpected return type');
         }
-    
+
         return { version, results: executedTask.output.results };
     }
     catch (err: any) {
@@ -207,10 +207,10 @@ export async function getTranslationStrings(): Promise<TranslationKeys> {
 export async function getCurrentNewsletters(): Promise<Newsletters> {
     const script = _readLuaFile('newsletters.luau');
 
-    const result = await _executeLuau<Newsletters>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
+    const result = await _executeLuau<string>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
     if (!result) return await new Promise<Newsletters>((res) => setTimeout(async () => res(await getCurrentNewsletters()), 1000 * 30));
 
-    return result.results[0];
+    return JSON.parse(result.results[0]);
 }
 
 /**
