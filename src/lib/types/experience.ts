@@ -117,3 +117,13 @@ export type ItemInformation = Record<string, {
     item?: ItemStats;
     gift?: ItemGiftInfo;
 }>;
+
+export type ChangelogEntry = {
+    _id: number;
+    date: Date;
+    added: string[] | never[];
+    changed: string[] | never[];
+    fixed: string[] | never[];
+};
+
+export type ChangelogVersions = Record<string, ChangelogEntry>;

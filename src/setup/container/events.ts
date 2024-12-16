@@ -1,5 +1,6 @@
 import EventEmitter from 'events';
 import {
+    getCurrentChangelogs,
     getCurrentItems,
     getCurrentNewsletters,
     getCurrentRockRNG,
@@ -7,6 +8,7 @@ import {
     getTranslationStrings
 } from '@/lib/util/execute-luau';
 import container from '@/lib/container';
+import type { ChangelogEntry } from '@/lib/types/experience';
 
 const events = new EventEmitter();
 
@@ -15,18 +17,39 @@ events.on('registered_endpoints', async () => {
 });
 
 events.on('oaklands_update', async ({ curr }: { prev: number; curr: number; }) => {
-    container.logger('Fetching current item details.');
-    const itemDetails = await getCurrentItems();
-
-    if (itemDetails) {
-        await container.redis.set('item_details', itemDetails);
-    }
-
     container.logger('Fetching latest news letters.');
     const newsletters = await getCurrentNewsletters();
     
     if (newsletters) {
         await container.redis.set('news_letters', newsletters);
+    }
+
+    container.logger('Fetching the latest changelogs.');
+    const changelog = await getCurrentChangelogs();
+
+    if (changelog) {
+        const versions: Record<string, Omit<ChangelogEntry, '_id'>> = {};
+
+        let latestVersionId = 0;
+        let latestVersion = '0.0.0';
+        for (const [version, details] of Object.entries(changelog)) {
+            if (latestVersionId < details._id) {
+                latestVersionId = details._id;
+                latestVersion = version;
+            }
+
+            const { _id, ...changes } = details;
+            versions[version] = changes;
+        }
+
+        await container.redis.set('changelog', [latestVersion, versions]);
+    }
+
+    container.logger('Fetching current item details.');
+    const itemDetails = await getCurrentItems();
+
+    if (itemDetails) {
+        await container.redis.set('item_details', itemDetails);
     }
 
     container.logger('Fetching latest translation strings.');

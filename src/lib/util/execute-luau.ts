@@ -8,11 +8,11 @@ import type {
     MaterialStockMarket,
     RockVariantRNG,
     ShipLocation,
-    StoreItem,
     StoresItems,
     TranslationKeys,
     Newsletters,
-    ItemInformation
+    ItemInformation,
+    ChangelogVersions
 } from '@/lib/types/experience';
 import container from "@/lib/container";
 
@@ -224,4 +224,14 @@ export async function getCurrentItems(): Promise<ItemInformation> {
     if (!result) return await new Promise<ItemInformation>((res) => setTimeout(async () => res(await getCurrentItems()), 1000 * 30));
 
     return result.results[0];
+}
+
+export async function getCurrentChangelogs(): Promise<ChangelogVersions> {
+    const script = _readLuaFile('changelog.luau');
+
+    const result = await _executeLuau<string>(script, { universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
+    if (!result) return await new Promise<ChangelogVersions>((res) => setTimeout(async () => res(await getCurrentChangelogs()), 1000 * 30));
+
+    const parsed: ChangelogVersions = JSON.parse(result.results[0]);
+    return parsed;
 }

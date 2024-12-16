@@ -3,10 +3,10 @@ import type {
     MaterialStockMarket,
     RockVariantRNG,
     StoresItems,
-    StoreItem,
     TranslationKeys,
     Newsletters,
-    ItemInformation
+    ItemInformation,
+    ChangelogEntry
 } from "@/lib/types/experience";
 
 export interface RedisKeys {
@@ -49,4 +49,9 @@ export interface RedisKeys {
     news_letters: Newsletters;
     /** All of the items in Oaklands */
     item_details: ItemInformation;
+    /** The current changelogs.
+     * 0 = Latest version.
+     * 1 = All of the versions.
+    */
+    changelog: [ string, Record<string, Omit<ChangelogEntry, '_id'>> ];
 }
