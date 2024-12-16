@@ -2,14 +2,15 @@ import container from '@/lib/container';
 import pg from 'pg';
 
 const { Pool } = pg;
-const { POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASSWORD } = process.env;
 
 const database = new Pool({
+    host: process.env.POSTGRES_HOST,
+    port: 5432,
     database: process.env.POSTGRES_DATABASE,
-    connectionString: `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}`,
-    options: `--timezone=UTC`,
+    user: process.env.POSTGRES_USER,
     idleTimeoutMillis: 1000 * 30,
     max: 10,
+    password: process.env.POSTGRES_PASSWORD
 });
 
 database.on('error', (err, client) => {
