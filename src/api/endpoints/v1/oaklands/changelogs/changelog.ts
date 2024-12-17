@@ -6,7 +6,7 @@ import container from "@/lib/container";
 
 const route = createRoute({
     method: "get",
-    path: "/changelogs/{id}",
+    path: "/changelogs/{version}",
     tags: ['Oaklands'],
     description: "Fetch a changelog version.",
     parameters: [
@@ -29,7 +29,7 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    const { id } = res.req.param();
+    const { version } = res.req.param();
 
     const changelogs = await container.redis.get('changelog');
 
@@ -41,19 +41,19 @@ oaklands.openapi(route, async (res) => {
 
     const [ latestVersion, versions ] = changelogs;
 
-    if (id.toLowerCase() === "latest") {
-        const version = versions[latestVersion];
+    if (version.toLowerCase() === "latest") {
+        const changelog = versions[latestVersion];
 
-        if (!version)
+        if (!changelog)
             return res.json({
                 error: "INTERNAL_ERROR",
                 message: "Unable to fetch the latest changelog version."
             }, 500);
 
-        return res.json(version, 200);
+        return res.json(changelog, 200);
     }
 
-    const version = versions[id];
+    const changelog = versions[version];
 
     if (!version)
         return res.json({
@@ -61,5 +61,5 @@ oaklands.openapi(route, async (res) => {
             message: "Requested changelog version does not exist."
         }, 500);
 
-    return res.json(version, 200);
+    return res.json(changelog, 200);
 });
