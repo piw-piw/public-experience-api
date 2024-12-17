@@ -29,15 +29,21 @@ events.on('oaklands_update', async ({ curr }: { prev: number; curr: number; }) =
 
     if (changelog) {
         const versions: Record<string, Omit<ChangelogEntry, '_id'>> = {};
+        const sorted = Object.entries(changelog) /** The hell I go through to make stuff sorted. */
+            .sort((a, b) => b[1]._id - a[1]._id)
+            .reduce((acc, [version, details]) => ({ ...acc, [version]: details }), {} as Record<string, ChangelogEntry>);
 
         let latestVersionId = 0;
         let latestVersion = '0.0.0';
-        for (const [version, details] of Object.entries(changelog)) {
+        for (const [version, details] of Object.entries(sorted)) {
             if (latestVersionId < details._id) {
                 latestVersionId = details._id;
                 latestVersion = version;
             }
 
+            /**
+             * @todo: Clean the provided date string up to turn it into a Date object.
+             */
             const { _id, ...changes } = details;
             versions[version] = changes;
         }

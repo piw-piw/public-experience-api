@@ -120,7 +120,7 @@ export type ItemInformation = Record<string, {
 
 export type ChangelogEntry = {
     _id: number;
-    date: Date;
+    date: string;
     added: string[] | never[];
     changed: string[] | never[];
     fixed: string[] | never[];
