@@ -2,6 +2,14 @@ _G.Server = {
 	IsOnStaging = false
 }
 
+for _,v in pairs(game.Workspace.Worlds:GetChildren()) do
+    if (v.Name == "Shared" or v.Name == "Finlay") then
+        for _,Inst in pairs(v:GetChildren()) do
+            Inst.Parent = game.Workspace.World
+        end
+    end
+end
+
 local Translations = require(game:GetService("ReplicatedFirst"):FindFirstChild("Client"):FindFirstChild("GUI"):FindFirstChild("Translations")).new()
 Translations:PreloadLanguages()
 
