@@ -1,42 +1,40 @@
+import type { RedisKeys } from '@/lib/types/redis-keys';
 import container from "@/lib/container";
-import { type RedisKeys } from '@/lib/types/redis-keys';
 
-/**
- * Convert a string to a JSON object.
- * @param input The string to convert
- * @returns {Result}
- */
-function _toJSON<Result extends Object>(input: string) {
-    try {
-        const json = JSON.parse(input) as Result;
-        return json;
-    }
-    catch {
-        return null;
-    }
-}
-
-/**
- * Get a key from the redis database.
- * @param {T} key The key to get
- * @returns {Promise<RedisKeys[T] | null>}
- */
-export async function get<T extends keyof RedisKeys>(key: T): Promise<RedisKeys[T] | null> {
-    const value = await container.redis.client.get(key);
+export async function stringGet<T extends keyof RedisKeys>(key: T): Promise<RedisKeys[T] | null> {
+    const value = await container.redis.client.get(key) as RedisKeys[T] | null;
     if (!value) return null;
 
-    return _toJSON<RedisKeys[T]>(value);
+    return value;
 }
 
-/**
- * Set a key in the redis database.
- * @param {T} key The key to set.
- * @param {RedisKeys[T]} value The data to set.
- * @returns {Promise<boolean>}
- */
-export async function set<T extends keyof RedisKeys>(key: T, value: RedisKeys[T]): Promise<boolean> {
+export async function jsonGet<T extends keyof RedisKeys>(key: T): Promise<RedisKeys[T] | null> {
+    const value = await container.redis.client.json.get(key) as RedisKeys[T] | null;
+    if (!value) return null;
+
+    return value;
+}
+
+export async function jsonSet<T extends keyof RedisKeys>(key: T, value: RedisKeys[T]): Promise<boolean> {
     try {
-        await container.redis.client.set(key, JSON.stringify(value));
+        await container.redis.client.json.set(key, "$", value);
+        return true;
+    }
+    catch {
+        return false;
+    }
+}
+
+export async function setGet<T extends keyof RedisKeys>(key: T): Promise<RedisKeys[T] | null> {
+    const value = await container.redis.client.sMembers(key) as RedisKeys[T] | null;
+    if (!value) return null;
+
+    return value;
+}
+
+export async function setAdd<T extends keyof RedisKeys>(key: T, value: string | string[]): Promise<boolean> {
+    try {
+        await container.redis.client.sAdd(key, value);
         return true;
     }
     catch {
