@@ -49,3 +49,15 @@ export interface RedisKeys {
         }[];
     }>>;
 }
+
+export type RedisString = {
+    [K in keyof RedisKeys as RedisKeys[K] extends string ? K : never]: RedisKeys[K];
+};
+
+export type RedisSet = {
+    [K in keyof RedisKeys as RedisKeys[K] extends string[] ? K : never]: RedisKeys[K];
+};
+
+export type RedisJson = {
+    [K in keyof RedisKeys as RedisKeys[K] extends object ? K : never]: RedisKeys[K];
+};
