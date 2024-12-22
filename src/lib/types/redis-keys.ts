@@ -2,6 +2,8 @@ import type { ChangelogEntry } from "@/lib/types/experience";
 
 
 export interface RedisKeys {
+    // -- Changelogs
+
     [`changelog:versions_list`]: string[];
     [`changelog:current_version`]: {
         id: number;
@@ -15,7 +17,7 @@ export interface RedisKeys {
         fixed: string[] | never[];
     };
 
-    //--
+    //-- Newsletters
 
     [`newsletter:current_page`]: string;
     [`newsletter:pages_list`]: string[];
@@ -28,4 +30,9 @@ export interface RedisKeys {
             content: ({ type: "Paragraph"; text: string; } | { type: "Image";image_id: string; } | { type: "ImageCarousel"; image_ids: string[]; } | { type: "Video"; video_id: string; })[];
         }[];
     };
+
+    //-- Translation Strings
+
+    [`translations:languages_list`]: string[];
+    [key: `translations:language:${string}`]: Record<string, string>;
 }

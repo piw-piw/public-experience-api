@@ -1,5 +1,5 @@
 import { executeLuau, readLuaFile, delayRepoll } from "@/lib/util/luau";
-import type { ChangelogVersions, Newsletters } from "@/lib/types/experience";
+import type { ChangelogVersions, Newsletters, TranslationKeys } from "@/lib/types/experience";
 import { UniverseIDs, OaklandsPlaceIDs } from "@/lib/types/enums";
 import container from "@/lib/container";
 
@@ -88,4 +88,26 @@ export async function cacheMissingNewsletters(): Promise<Newsletters> {
     }
 
     return parsed;
+}
+
+export async function fetchTranslationStrings(): Promise<TranslationKeys> {
+    let script = readLuaFile('./oaklands/translated-languages.luau');
+
+    const result = await executeLuau<TranslationKeys>(script, {
+        universeId: UniverseIDs.Oaklands,
+        placeId: OaklandsPlaceIDs.Production
+    });
+
+    if (!result) return await delayRepoll(fetchTranslationStrings);
+
+    const results = result.results[0];
+
+    for (const [language, strings] of Object.entries(results)) {
+        if (language === 'ALTKEYS') continue;
+
+        await container.redis.setAdd('translations:languages_list', language);
+        await container.redis.jsonSet(`translations:language:${language}`, strings);
+    }
+
+    return results;
 }
