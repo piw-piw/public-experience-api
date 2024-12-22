@@ -1,5 +1,5 @@
 import { executeLuau, readLuaFile, delayRepoll } from "@/lib/util/luau";
-import type { ChangelogVersions, Newsletters, TranslationKeys } from "@/lib/types/experience";
+import type { ChangelogVersions, MaterialStockMarket, Newsletters, TranslationKeys } from "@/lib/types/experience";
 import { UniverseIDs, OaklandsPlaceIDs } from "@/lib/types/enums";
 import container from "@/lib/container";
 
@@ -81,7 +81,7 @@ export async function cacheMissingNewsletters(): Promise<Newsletters> {
 
     const parsed: Newsletters = JSON.parse(result.results[0]);
 
-    await container.redis.client.set('newsletter:current_page', parsed.latest_page);
+    await container.redis.client.set('oaklands:newsletter:current_page', parsed.latest_page);
     for (const [page, pageInfo] of Object.entries(parsed.pages)) {
         await container.redis.setAdd('oaklands:newsletter:pages_list', page);
         await container.redis.jsonSet(`oaklands:newsletter:pages:${page}`, pageInfo);
@@ -92,7 +92,7 @@ export async function cacheMissingNewsletters(): Promise<Newsletters> {
 
 /**
  * Fetch all of the translation strings.
- * @returns {Promise<TranslationKeys>} The translation strings.
+ * @returns {Promise<TranslationKeys>}
  */
 export async function fetchTranslationStrings(): Promise<TranslationKeys> {
     let script = readLuaFile('./oaklands/translated-languages.luau');
