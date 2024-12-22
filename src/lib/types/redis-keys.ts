@@ -1,6 +1,3 @@
-import type { ChangelogEntry } from "@/lib/types/experience";
-
-
 export interface RedisKeys {
     // -- Changelogs
 
