@@ -26,6 +26,13 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    return res.json({} as any, 200);
+    const versions = await container.redis.setGet('changelog:versions_list');
 
+    if (!versions)
+        return res.json({
+            error: "INTERNAL_ERROR",
+            message: "The contents for the changelog are currently not cached."
+        }, 500);
+
+    return res.json({ keys: versions }, 200);
 });

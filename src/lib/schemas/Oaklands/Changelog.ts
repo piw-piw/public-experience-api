@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi';
 
 const VersionChangelog = z.object({
-    date: z.string(),
+    date: z.date(),
     changed: z.string().array(),
     added: z.string().array(),
     fixed: z.string().array(),
