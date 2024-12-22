@@ -90,6 +90,10 @@ export async function cacheMissingNewsletters(): Promise<Newsletters> {
     return parsed;
 }
 
+/**
+ * Fetch all of the translation strings.
+ * @returns {Promise<TranslationKeys>} The translation strings.
+ */
 export async function fetchTranslationStrings(): Promise<TranslationKeys> {
     let script = readLuaFile('./oaklands/translated-languages.luau');
 
