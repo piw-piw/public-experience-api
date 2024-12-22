@@ -26,5 +26,13 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    return res.json({} as any, 200);
+    const rarity = await container.redis.jsonGet('oaklands:ore_rarity');
+
+    if (!rarity)
+        return res.json({
+            error: "INTERNAL_ERROR",
+            message: "The ore rarity list is currently not cached."
+        }, 500);
+
+    return res.json(rarity, 200);
 });

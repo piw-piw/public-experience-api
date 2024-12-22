@@ -1,5 +1,5 @@
 import { executeLuau, readLuaFile, delayRepoll } from "@/lib/util/luau";
-import type { ChangelogVersions, MaterialStockMarket, Newsletters, TranslationKeys } from "@/lib/types/experience";
+import type { ChangelogVersions, MaterialStockMarket, Newsletters, RockVariantRNG, TranslationKeys } from "@/lib/types/experience";
 import { UniverseIDs, OaklandsPlaceIDs } from "@/lib/types/enums";
 import container from "@/lib/container";
 
@@ -156,6 +156,27 @@ export async function fetchMaterialStockMarket(): Promise<MaterialStockMarket> {
         rocks: parsed.Rocks,
         ores: parsed.Ores
     });
+
+    return parsed;
+}
+
+/**
+ * Fetch the current ore rarity values.
+ * @returns {Promise<RockVariantRNG>}
+ */
+export async function fetchOreRarity(): Promise<RockVariantRNG> {
+    let script = readLuaFile('./oaklands/ore-rarity.luau');
+
+    const result = await executeLuau<string>(script, {
+        universeId: UniverseIDs.Oaklands,
+        placeId: OaklandsPlaceIDs.Production
+    });
+
+    if (!result) return await delayRepoll(fetchOreRarity);
+
+    const parsed: RockVariantRNG = JSON.parse(result.results[0]);
+
+    await container.redis.jsonSet('oaklands:ore_rarity', parsed);
 
     return parsed;
 }

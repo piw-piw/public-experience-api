@@ -1,3 +1,5 @@
+local HTTPService = game:GetService("HttpService")
+
 _G.Server = {
 	IsOnStaging = false
 }
@@ -42,4 +44,4 @@ for Key, Rocks in pairs(RockRNG) do
 	end
 end
 
-return RNG
+return HTTPService:JSONEncode(RNG)

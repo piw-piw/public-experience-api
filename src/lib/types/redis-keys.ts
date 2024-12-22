@@ -48,6 +48,10 @@ export interface RedisKeys {
             current_value: number;
         }[];
     }>>;
+
+    //-- Misc
+
+    [`oaklands:ore_rarity`]: Record<string, Record<string, { [k: string]: number }>>;
 }
 
 export type RedisString = {
