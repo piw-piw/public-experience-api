@@ -78,7 +78,7 @@ oaklands.openapi(route, async (res) => {
             message: "The language provided is invalid."
         }, 404);
 
-    const translationStrings = await container.redis.jsonGet(`translations:language:${language}`);
+    const translationStrings = await container.redis.jsonGet(`oaklands:translations:language:${language}`);
 
     if (!translationStrings)
         return res.json({

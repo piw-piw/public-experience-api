@@ -26,7 +26,7 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    const versions = await container.redis.setGet('changelog:versions_list');
+    const versions = await container.redis.setGet('oaklands:changelog:versions_list');
 
     if (!versions)
         return res.json({

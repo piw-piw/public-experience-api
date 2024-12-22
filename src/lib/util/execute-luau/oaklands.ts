@@ -10,8 +10,8 @@ import container from "@/lib/container";
 export async function cacheMissingChangelogs(): Promise<ChangelogVersions> {
     let script = readLuaFile('./oaklands/changelog.luau');
 
-    const currentVersion = await container.redis.jsonGet('changelog:current_version') || { id: 0, version: "0.0.0" };
-    const cachedVersions = await container.redis.setGet('changelog:versions_list') || [];
+    const currentVersion = await container.redis.jsonGet('oaklands:changelog:current_version') || { id: 0, version: "0.0.0" };
+    const cachedVersions = await container.redis.setGet('oaklands:changelog:versions_list') || [];
 
     script = script.replace(
         `'CACHED_VERSIONS'`,
@@ -42,13 +42,13 @@ export async function cacheMissingChangelogs(): Promise<ChangelogVersions> {
             latestVersion = version;
         }
 
-        await container.redis.setAdd('changelog:versions_list', version);
-        await container.redis.jsonSet(`changelog:versions:${version}`, {
+        await container.redis.setAdd('oaklands:changelog:versions_list', version);
+        await container.redis.jsonSet(`oaklands:changelog:versions:${version}`, {
             _id, date: new Date(cleanDate), ...changes
         });
     }
 
-    await container.redis.jsonSet('changelog:current_version', { id: latestId, version: latestVersion });
+    await container.redis.jsonSet('oaklands:changelog:current_version', { id: latestId, version: latestVersion });
 
     return parsed;
 }
@@ -60,8 +60,8 @@ export async function cacheMissingChangelogs(): Promise<ChangelogVersions> {
 export async function cacheMissingNewsletters(): Promise<Newsletters> {
     let script = readLuaFile('./oaklands/newsletters.luau');
 
-    const currentPage = await container.redis.stringGet('newsletter:current_page');
-    const cachedPages = await container.redis.setGet('newsletter:pages_list') || [];
+    const currentPage = await container.redis.stringGet('oaklands:newsletter:current_page');
+    const cachedPages = await container.redis.setGet('oaklands:newsletter:pages_list') || [];
 
     script = script.replace(
         `'CACHED_PAGES'`,
@@ -83,8 +83,8 @@ export async function cacheMissingNewsletters(): Promise<Newsletters> {
 
     await container.redis.client.set('newsletter:current_page', parsed.latest_page);
     for (const [page, pageInfo] of Object.entries(parsed.pages)) {
-        await container.redis.setAdd('newsletter:pages_list', page);
-        await container.redis.jsonSet(`newsletter:pages:${page}`, pageInfo);
+        await container.redis.setAdd('oaklands:newsletter:pages_list', page);
+        await container.redis.jsonSet(`oaklands:newsletter:pages:${page}`, pageInfo);
     }
 
     return parsed;
@@ -105,8 +105,8 @@ export async function fetchTranslationStrings(): Promise<TranslationKeys> {
     for (const [language, strings] of Object.entries(results)) {
         if (language === 'ALTKEYS') continue;
 
-        await container.redis.setAdd('translations:languages_list', language);
-        await container.redis.jsonSet(`translations:language:${language}`, strings);
+        await container.redis.setAdd('oaklands:translations:languages_list', language);
+        await container.redis.jsonSet(`oaklands:translations:language:${language}`, strings);
     }
 
     return results;

@@ -36,7 +36,7 @@ const route = createRoute({
 
 oaklands.openapi(route, async (res) => {
     const { id } = res.req.param();
-    const pages = await container.redis.setGet('newsletter:pages_list');
+    const pages = await container.redis.setGet('oaklands:newsletter:pages_list');
 
     if (!pages)
         return res.json({
@@ -45,14 +45,14 @@ oaklands.openapi(route, async (res) => {
         }, 500);
 
     if (id === 'latest') {
-        const latest = await container.redis.stringGet('newsletter:current_page');
+        const latest = await container.redis.stringGet('oaklands:newsletter:current_page');
         if (!latest)
             return res.json({
                 error: "INTERNAL_ERROR",
                 message: "Latest newsletter information is currently not cached. Tell LuckFire to fix this."
             }, 500);
 
-        const page = await container.redis.jsonGet(`newsletter:pages:${latest}`);
+        const page = await container.redis.jsonGet(`oaklands:newsletter:pages:${latest}`);
         if (!page)
             return res.json({
                 error: "INTERNAL_ERROR",
@@ -68,7 +68,7 @@ oaklands.openapi(route, async (res) => {
             message: "The page provided is invalid."
         }, 404);
 
-    const page = await container.redis.jsonGet(`newsletter:pages:${id}`);
+    const page = await container.redis.jsonGet(`oaklands:newsletter:pages:${id}`);
 
     if (!page)
         return res.json({

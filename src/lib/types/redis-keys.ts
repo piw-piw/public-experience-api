@@ -4,12 +4,12 @@ import type { ChangelogEntry } from "@/lib/types/experience";
 export interface RedisKeys {
     // -- Changelogs
 
-    [`changelog:versions_list`]: string[];
-    [`changelog:current_version`]: {
+    [`oaklands:changelog:versions_list`]: string[];
+    [`oaklands:changelog:current_version`]: {
         id: number;
         version: string;
     };
-    [key: `changelog:versions:${string}`]: {
+    [key: `oaklands:changelog:versions:${string}`]: {
         _id: number;
         date: Date;
         added: string[] | never[];
@@ -19,9 +19,9 @@ export interface RedisKeys {
 
     //-- Newsletters
 
-    [`newsletter:current_page`]: string;
-    [`newsletter:pages_list`]: string[];
-    [key: `newsletter:pages:${string}`]: {
+    [`oaklands:newsletter:current_page`]: string;
+    [`oaklands:newsletter:pages_list`]: string[];
+    [key: `oaklands:newsletter:pages:${string}`]: {
         banner_image_id: string;
         header_text: string;
         subheader_text: string;
@@ -33,6 +33,6 @@ export interface RedisKeys {
 
     //-- Translation Strings
 
-    [`translations:languages_list`]: string[];
-    [key: `translations:language:${string}`]: Record<string, string>;
+    [`oaklands:translations:languages_list`]: string[];
+    [key: `oaklands:translations:language:${string}`]: Record<string, string>;
 }

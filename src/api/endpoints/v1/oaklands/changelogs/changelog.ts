@@ -36,7 +36,7 @@ const route = createRoute({
 
 oaklands.openapi(route, async (res) => {
     const { version } = res.req.param();
-    const versions = await container.redis.setGet('changelog:versions_list');
+    const versions = await container.redis.setGet('oaklands:changelog:versions_list');
 
     if (!versions)
         return res.json({
@@ -45,14 +45,14 @@ oaklands.openapi(route, async (res) => {
         }, 500);
 
     if (version === 'latest') {
-        const latest = await container.redis.jsonGet('changelog:current_version');
+        const latest = await container.redis.jsonGet('oaklands:changelog:current_version');
         if (!latest)
             return res.json({
                 error: "INTERNAL_ERROR",
                 message: "Latest version changelog information is currently not cached. Tell LuckFire to fix this."
             }, 500);
 
-        const changelog = await container.redis.jsonGet(`changelog:versions:${latest.version}`);
+        const changelog = await container.redis.jsonGet(`oaklands:changelog:versions:${latest.version}`);
         if (!changelog)
             return res.json({
                 error: "INTERNAL_ERROR",
@@ -70,7 +70,7 @@ oaklands.openapi(route, async (res) => {
             message: "The version provided is invalid."
         }, 404);
 
-    const changelog = await container.redis.jsonGet(`changelog:versions:${version}`);
+    const changelog = await container.redis.jsonGet(`oaklands:changelog:versions:${version}`);
 
     if (!changelog)
         return res.json({

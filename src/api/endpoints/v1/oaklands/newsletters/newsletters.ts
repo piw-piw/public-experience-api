@@ -26,7 +26,7 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    const pages = await container.redis.setGet('newsletter:pages_list');
+    const pages = await container.redis.setGet('oaklands:newsletter:pages_list');
 
     if (!pages)
         return res.json({
