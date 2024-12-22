@@ -26,5 +26,13 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    return res.json({} as any, 200);
+    const pages = await container.redis.setGet('newsletter:pages_list');
+
+    if (!pages)
+        return res.json({
+            error: "INTERNAL_ERROR",
+            message: "The contents for the newsletters are currently not cached."
+        }, 500);
+
+    return res.json({ keys: pages }, 200);
 });

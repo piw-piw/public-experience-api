@@ -2,6 +2,7 @@ local HTTPService = game:GetService("HttpService")
 
 local NewsLetter = require(game.ReplicatedFirst.Newsletter)
 local LatestPage = NewsLetter:GetLatestNewsletter()
+local CachedPages = {'CACHED_PAGES'}
 
 if (not LatestPage) then
 	return nil
@@ -60,7 +61,7 @@ end
 local Details = {
 	latest_page = NewsLetter.LatestNewsletter,
 	pages = {
-		[NewsLetter.LatestNewsletter] = FormatLetter(LatestPage)
+		-- [NewsLetter.LatestNewsletter] = FormatLetter(LatestPage)
 	}
 }
 
@@ -69,7 +70,7 @@ local Pages = game.ReplicatedFirst.Newsletter:GetChildren()
 for _, Page in pairs(Pages) do
 	local PageName = Page.Name
 	
-	if (PageName == "_Types" or PageName == NewsLetter.LatestNewsletter) then
+	if (PageName == "_Types" or CachedPages[PageName]) then
 		continue
 	end
 	

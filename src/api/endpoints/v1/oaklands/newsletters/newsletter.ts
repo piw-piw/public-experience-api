@@ -19,6 +19,12 @@ const route = createRoute({
             },
             description: "OK"
         },
+        404: {
+            content: {
+                "application/json": { schema: ErrorMessage, example: ErrorMessageExample }
+            },
+            description: "NOT FOUND"
+        },
         500: {
             content: {
                 "application/json": { schema: ErrorMessage, example: ErrorMessageExample }
@@ -29,5 +35,46 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    return res.json({} as any, 200);
+    const { id } = res.req.param();
+    const pages = await container.redis.setGet('newsletter:pages_list');
+
+    if (!pages)
+        return res.json({
+            error: "INTERNAL_ERROR",
+            message: "The contents for the newsletters are currently not cached."
+        }, 500);
+
+    if (id === 'latest') {
+        const latest = await container.redis.stringGet('newsletter:current_page');
+        if (!latest)
+            return res.json({
+                error: "INTERNAL_ERROR",
+                message: "Latest newsletter information is currently not cached. Tell LuckFire to fix this."
+            }, 500);
+
+        const page = await container.redis.jsonGet(`newsletter:pages:${latest}`);
+        if (!page)
+            return res.json({
+                error: "INTERNAL_ERROR",
+                message: "The page is currently not cached."
+            }, 500);
+
+        return res.json(page, 200);
+    }
+
+    if (!pages.includes(id))
+        return res.json({
+            error: "INVALID_PAGE",
+            message: "The page provided is invalid."
+        }, 404);
+
+    const page = await container.redis.jsonGet(`newsletter:pages:${id}`);
+
+    if (!page)
+        return res.json({
+            error: "INTERNAL_ERROR",
+            message: "The page is currently not cached."
+        }, 500);
+
+    return res.json(page, 200);
 });
