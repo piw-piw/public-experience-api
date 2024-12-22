@@ -8,6 +8,16 @@ export async function stringGet<T extends keyof RedisString>(key: T): Promise<Re
     return value;
 }
 
+export async function stringSet<T extends keyof RedisString>(key: T, value: RedisString[T]): Promise<boolean> {
+    try {
+        await container.redis.client.set(key, value);
+        return true;
+    }
+    catch {
+        return false;
+    }
+}
+
 export async function jsonGet<T extends keyof RedisJson>(key: T): Promise<RedisJson[T] | null> {
     const value = await container.redis.client.json.get(key) as RedisKeys[T] | null;
     if (!value) return null;

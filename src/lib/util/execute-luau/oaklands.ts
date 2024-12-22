@@ -81,7 +81,7 @@ export async function cacheMissingNewsletters(): Promise<Newsletters> {
 
     const parsed: Newsletters = JSON.parse(result.results[0]);
 
-    await container.redis.client.set('oaklands:newsletter:current_page', parsed.latest_page);
+    await container.redis.stringSet('oaklands:newsletter:current_page', parsed.latest_page);
     for (const [page, pageInfo] of Object.entries(parsed.pages)) {
         await container.redis.setAdd('oaklands:newsletter:pages_list', page);
         await container.redis.jsonSet(`oaklands:newsletter:pages:${page}`, pageInfo);
