@@ -26,18 +26,5 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    const stores = await container.redis.get('store_items');
-
-    if (!stores)
-        return res.json({
-            error: "INTERNAL_ERROR",
-            message: "The contents for all stores are currently not cached."
-        }, 500);
-
-    const keys = [
-        ...Object.keys(stores),
-        "classic-shop"
-    ]
-    
-    return res.json({ keys }, 200);
+    return res.json({} as any, 200);
 });

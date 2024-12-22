@@ -29,29 +29,5 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    const items = await container.redis.get('item_details');
-
-    if (!items)
-        return res.json({
-            error: "INTERNAL_ERROR",
-            message: "The contents for items are currently not cached."
-        }, 500);
-
-    const identifier = res.req.param('identifier');
-    const info = items[identifier];
-
-    if (!info) 
-        return res.json({
-            error: "INTERNAL_ERROR",
-            message: "The requested item does not exist."
-        }, 500);
-
-    const { details, ...variants } = info;
-    
-    return res.json({
-        identifier: details.identifier,
-        name: details.name,
-        description: details.description,
-        ...variants
-    }, 200);
+    return res.json({} as any, 200);
 });

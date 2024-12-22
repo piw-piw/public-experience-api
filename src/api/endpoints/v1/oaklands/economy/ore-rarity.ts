@@ -26,13 +26,5 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    const rockRNGList = await container.redis.get('current_rock_rng');
-
-    if (!rockRNGList)
-        return res.json({
-            error: "INTERNAL_ERROR",
-            message: "The ores list is currently not cached."
-        }, 500);
-
-    return res.json(rockRNGList, 200);
+    return res.json({} as any, 200);
 });

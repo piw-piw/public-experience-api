@@ -29,37 +29,5 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    const { id } = res.req.param();
-
-    const newsletters = await container.redis.get('news_letters');
-
-    if (!newsletters)
-        return res.json({
-            error: "INTERNAL_ERROR",
-            message: "Newsletters are currently not cached."
-        }, 500);
-
-    const { latest_page, pages } = newsletters;
-
-    if (id.toLowerCase() === "latest") {
-        const page = pages[latest_page];
-        
-        if (!page)
-            return res.json({
-                error: "INTERNAL_ERROR",
-                message: "Unable to fetch the latest newsletter page."
-            }, 500);
-
-        return res.json(page, 200);
-    }
-
-    const page = pages[id];
-
-    if (!page)
-        return res.json({
-            error: "INTERNAL_ERROR",
-            message: "Requested news letter does not exist."
-        }, 500);
-
-    return res.json(page, 200);
+    return res.json({} as any, 200);
 });

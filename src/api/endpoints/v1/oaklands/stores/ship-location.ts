@@ -26,20 +26,5 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    const shipLocation = await container.redis.get('ship_location');
-
-    if (!shipLocation)
-        return res.json({
-            error: "INTERNAL_ERROR",
-            message: "The ship location is not cached currently."
-        }, 500);
-
-    const [ next_reset, current_loation, next_location ] = shipLocation
-    const locations = ["Desert", "LowerMeadows" , "Savannah", "RiverCave" ];
-
-    return res.json({
-        reset_time: new Date(new Date(next_reset * 1000).toISOString()),
-        current_location: locations[current_loation - 1] || "Unknown",
-        next_location: locations[next_location - 1] || "Unknown"
-    }, 200);
+    return res.json({} as any, 200);
 });

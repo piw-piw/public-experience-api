@@ -44,22 +44,5 @@ function _returnStrings(strings: string[], translations: TranslationKeys[string]
 }
 
 oaklands.openapi(route, async (res) => {
-    const translations = await container.redis.get('translation_strings');
-
-    if (!translations)
-        return res.json({
-            error: "INTERNAL_ERROR",
-            message: "Translations are currently not cached."
-        }, 500);
-
-    const enUS = translations['en_us'];
-
-    const { returnStrings } = res.req.query();
-    if (returnStrings) {
-        const requestedStrings = _returnStrings(returnStrings.split(','), enUS);
-        
-        return res.json(requestedStrings, 200);
-    }
-
-    return res.json(enUS, 200);
+    return res.json({} as any, 200);
 });

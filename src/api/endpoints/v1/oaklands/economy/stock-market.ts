@@ -76,37 +76,5 @@ function _orderAmount(orderBy: string, object: MaterialStockMarket) {
 }
 
 oaklands.openapi(route, async (res) => {
-    const stockMarket = await container.redis.get('material_stock_market');
-    
-    if (!stockMarket)
-        return res.json({
-            error: "INTERNAL_ERROR",
-            message: "The contents for the stock market are currently not cached."
-        }, 500);
-
-    const { materialTypes, currencyTypes, orderDifference } = res.req.query();
-    let [ reset_epoch, items ] = stockMarket;
-    
-    if (materialTypes) {
-        items = _filterMaterials(materialTypes.toLowerCase().split(','), items);
-    }
-
-    if (currencyTypes) {
-        items = _filterCurrencies(currencyTypes.toLowerCase().split(','), items);
-    }
-
-    if (orderDifference) {
-        const orders = [ 'asc', 'desc' ];
-        
-        if (orders.includes(orderDifference.toLowerCase())) {
-            items = _orderAmount(orderDifference.toLowerCase(), items);
-        }
-    }
-
-    return res.json({
-        reset_time: new Date(reset_epoch),
-        trees: items.Trees,
-        rocks: items.Rocks,
-        ores: items.Ores
-    }, 200);
+    return res.json({} as any, 200);
 });
