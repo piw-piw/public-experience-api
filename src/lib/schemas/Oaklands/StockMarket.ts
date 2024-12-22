@@ -3,6 +3,7 @@ import StockMarketMaterial from '@/lib/schemas/Oaklands/StockMarketMaterial';
 
 const StockMarket = z.object({
     reset_time: z.date(),
+    updated_time: z.date(),
     trees: z.record(StockMarketMaterial).optional(),
     rocks: z.record(StockMarketMaterial).optional(),
     ores: z.record(StockMarketMaterial).optional()
@@ -12,6 +13,7 @@ export type StockMarketSchema = z.infer<typeof StockMarket>;
 
 export const StockMarketExample: StockMarketSchema = {
     reset_time: new Date("2024-10-02T04:00:00.000Z"),
+    updated_time: new Date("2024-10-02T04:00:00.000Z"),
     trees: {
         hallow: {
             name: "Hallow",

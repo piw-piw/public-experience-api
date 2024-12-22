@@ -4,6 +4,7 @@ import oaklands from "@/api/routes/oaklands";
 import StockMarket, { StockMarketExample } from "@/lib/schemas/Oaklands/StockMarket";
 import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
 import container from "@/lib/container";
+import type { RedisKeys } from "@/lib/types/redis-keys";
 
 const route = createRoute({
     method: "get",
@@ -31,7 +32,7 @@ const route = createRoute({
     }
 });
 
-function _filterMaterials(materials: string[], object: MaterialStockMarket) {
+function _filterMaterials(materials: string[], object: RedisKeys['oaklands:stock-market:values']) {
     const keys = Object.keys(object) as string[];
 
     for (const key of keys) {
@@ -41,7 +42,7 @@ function _filterMaterials(materials: string[], object: MaterialStockMarket) {
     return object;
 }
 
-function _filterCurrencies(currencies: string[], object: MaterialStockMarket) {
+function _filterCurrencies(currencies: string[], object: RedisKeys['oaklands:stock-market:values']) {
     const typeEntries = Object.entries(object) as [string, Record<string, BaseMaterial<string>>][];
 
     for (const [tk, tv] of typeEntries) {
@@ -55,7 +56,7 @@ function _filterCurrencies(currencies: string[], object: MaterialStockMarket) {
     return object;
 }
 
-function _orderAmount(orderBy: string, object: MaterialStockMarket) {
+function _orderAmount(orderBy: string, object: RedisKeys['oaklands:stock-market:values']) {
     const entries = Object.entries(object) as [string, Record<string, BaseMaterial<string>>][];
 
     for (const [k, v] of entries) {
@@ -76,5 +77,39 @@ function _orderAmount(orderBy: string, object: MaterialStockMarket) {
 }
 
 oaklands.openapi(route, async (res) => {
-    return res.json({} as any, 200);
+    const resetTime = await container.redis.jsonGet('oaklands:stock-market:reset');
+    const updatedTime = await container.redis.jsonGet('oaklands:stock-market:updated');
+
+    const { materialTypes, currencyTypes, orderDifference } = res.req.query();
+    let market = await container.redis.jsonGet('oaklands:stock-market:values');
+
+    if (!resetTime || !updatedTime || !market)
+        return res.json({
+            error: "INTERNAL_ERROR",
+            message: "The material stock market is currently not cached."
+        }, 500);
+
+    if (materialTypes) {
+        market = _filterMaterials(materialTypes.toLowerCase().split(','), market);
+    }
+
+    if (currencyTypes) {
+        market = _filterCurrencies(currencyTypes.toLowerCase().split(','), market);
+    }
+
+    if (orderDifference) {
+        const orders = [ 'asc', 'desc' ];
+        
+        if (orders.includes(orderDifference.toLowerCase())) {
+            market = _orderAmount(orderDifference.toLowerCase(), market);
+        }
+    }
+
+    return res.json({
+        reset_time: new Date(resetTime),
+        updated_time: new Date(updatedTime),
+        trees: market.trees,
+        rocks: market.rocks,
+        ores: market.ores
+    }, 200);
 });

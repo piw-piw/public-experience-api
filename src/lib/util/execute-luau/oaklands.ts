@@ -115,3 +115,47 @@ export async function fetchTranslationStrings(): Promise<TranslationKeys> {
 
     return results;
 }
+
+/**
+ * Fetch the current material stock market values.
+ * @returns {Promise<MaterialStockMarket>}
+ */
+export async function fetchMaterialStockMarket(): Promise<MaterialStockMarket> {
+    let script = readLuaFile('./oaklands/stock-market.luau');
+
+    const result = await executeLuau<string>(script, {
+        universeId: UniverseIDs.Oaklands,
+        placeId: OaklandsPlaceIDs.Production
+    });
+
+    if (!result) return await delayRepoll(fetchMaterialStockMarket);
+
+    const parsed: MaterialStockMarket = JSON.parse(result.results[0]);
+
+
+    await container.redis.jsonSet('oaklands:stock-market:updated', new Date());
+    await container.redis.jsonSet('oaklands:stock-market:reset', (() => {
+        const currentHours = new Date().getUTCHours();
+        const date = new Date();
+
+        const nextResetHour = (Math.floor((currentHours + 2) / 6) * 6 + 4) % 24;
+        
+        date.setUTCHours(
+            nextResetHour === currentHours
+                ? (nextResetHour + 6) % 24
+                : nextResetHour,
+            0, 0, 0
+        );
+
+        if (nextResetHour === 4) date.setUTCDate(date.getUTCDate() + 1);
+
+        return date;
+    })());
+    await container.redis.jsonSet('oaklands:stock-market:values', {
+        trees: parsed.Trees,
+        rocks: parsed.Rocks,
+        ores: parsed.Ores
+    });
+
+    return parsed;
+}

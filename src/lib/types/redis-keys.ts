@@ -32,4 +32,20 @@ export interface RedisKeys {
 
     [`oaklands:translations:languages_list`]: string[];
     [key: `oaklands:translations:language:${string}`]: Record<string, string>;
+
+    //-- Stock Market
+    
+    [`oaklands:stock-market:reset`]: Date;
+    [`oaklands:stock-market:updated`]: Date;
+    [`oaklands:stock-market:values`]: Record<string, Record<string, {
+        name: string;
+        currency_type: string;
+        last_difference: number;
+        current_difference: number;
+        values: {
+            type: string;
+            base_value: number;
+            current_value: number;
+        }[];
+    }>>;
 }

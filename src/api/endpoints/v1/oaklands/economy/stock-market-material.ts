@@ -35,5 +35,23 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    return res.json({} as any, 200);
+    const market = await container.redis.jsonGet('oaklands:stock-market:values');
+
+    if (!market)
+        return res.json({
+            error: "INTERNAL_ERROR",
+            message: "The material stock market is currently not cached."
+        }, 500);
+
+    const materialType = res.req.param('materialType');
+    const materials = Object.values(market).reduce((acc, curr) => ({ ...acc, ...curr }), {});
+    const material = materials[materialType];
+
+    if (!material)
+        return res.json({
+            error: "INVALID_MATERIAL",
+            message: "The material provided is invalid."
+        }, 404);
+
+    return res.json(material, 200);
 });

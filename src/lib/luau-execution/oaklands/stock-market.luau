@@ -1,3 +1,5 @@
+local HTTPService = game:GetService("HttpService")
+
 _G.Server = {
     IsOnStaging = false
 }
@@ -48,4 +50,4 @@ MaterialValues:UpdateMaterialValues()
 MaterialValues.LastRandom = Random.new(MaterialValues.MaterialValuesLastSeed)
 MaterialValues.CurrentRandom = Random.new(MaterialValues.MaterialValuesUpdatedSeed)
 
-return MaterialValues:CreateFormattedValues()
+return HTTPService:JSONEncode(MaterialValues:CreateFormattedValues())
