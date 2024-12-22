@@ -32,7 +32,7 @@ const route = createRoute({
     }
 });
 
-function _filterMaterials(materials: string[], object: RedisKeys['oaklands:stock-market:values']) {
+function _filterMaterials(materials: string[], object: RedisKeys['oaklands:stock_market:values']) {
     const keys = Object.keys(object) as string[];
 
     for (const key of keys) {
@@ -42,7 +42,7 @@ function _filterMaterials(materials: string[], object: RedisKeys['oaklands:stock
     return object;
 }
 
-function _filterCurrencies(currencies: string[], object: RedisKeys['oaklands:stock-market:values']) {
+function _filterCurrencies(currencies: string[], object: RedisKeys['oaklands:stock_market:values']) {
     const typeEntries = Object.entries(object) as [string, Record<string, BaseMaterial<string>>][];
 
     for (const [tk, tv] of typeEntries) {
@@ -56,7 +56,7 @@ function _filterCurrencies(currencies: string[], object: RedisKeys['oaklands:sto
     return object;
 }
 
-function _orderAmount(orderBy: string, object: RedisKeys['oaklands:stock-market:values']) {
+function _orderAmount(orderBy: string, object: RedisKeys['oaklands:stock_market:values']) {
     const entries = Object.entries(object) as [string, Record<string, BaseMaterial<string>>][];
 
     for (const [k, v] of entries) {
@@ -77,11 +77,11 @@ function _orderAmount(orderBy: string, object: RedisKeys['oaklands:stock-market:
 }
 
 oaklands.openapi(route, async (res) => {
-    const resetTime = await container.redis.jsonGet('oaklands:stock-market:reset');
-    const updatedTime = await container.redis.jsonGet('oaklands:stock-market:updated');
+    const resetTime = await container.redis.jsonGet('oaklands:stock_market:reset');
+    const updatedTime = await container.redis.jsonGet('oaklands:stock_market:updated');
 
     const { materialTypes, currencyTypes, orderDifference } = res.req.query();
-    let market = await container.redis.jsonGet('oaklands:stock-market:values');
+    let market = await container.redis.jsonGet('oaklands:stock_market:values');
 
     if (!resetTime || !updatedTime || !market)
         return res.json({

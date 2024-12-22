@@ -133,8 +133,8 @@ export async function fetchMaterialStockMarket(): Promise<MaterialStockMarket> {
     const parsed: MaterialStockMarket = JSON.parse(result.results[0]);
 
 
-    await container.redis.jsonSet('oaklands:stock-market:updated', new Date());
-    await container.redis.jsonSet('oaklands:stock-market:reset', (() => {
+    await container.redis.jsonSet('oaklands:stock_market:updated', new Date());
+    await container.redis.jsonSet('oaklands:stock_market:reset', (() => {
         const currentHours = new Date().getUTCHours();
         const date = new Date();
 
@@ -151,7 +151,7 @@ export async function fetchMaterialStockMarket(): Promise<MaterialStockMarket> {
 
         return date;
     })());
-    await container.redis.jsonSet('oaklands:stock-market:values', {
+    await container.redis.jsonSet('oaklands:stock_market:values', {
         trees: parsed.Trees,
         rocks: parsed.Rocks,
         ores: parsed.Ores

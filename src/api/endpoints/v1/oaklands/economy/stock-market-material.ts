@@ -35,7 +35,7 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    const market = await container.redis.jsonGet('oaklands:stock-market:values');
+    const market = await container.redis.jsonGet('oaklands:stock_market:values');
 
     if (!market)
         return res.json({

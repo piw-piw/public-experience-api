@@ -35,9 +35,9 @@ export interface RedisKeys {
 
     //-- Stock Market
     
-    [`oaklands:stock-market:reset`]: Date;
-    [`oaklands:stock-market:updated`]: Date;
-    [`oaklands:stock-market:values`]: Record<string, Record<string, {
+    [`oaklands:stock_market:reset`]: Date;
+    [`oaklands:stock_market:updated`]: Date;
+    [`oaklands:stock_market:values`]: Record<string, Record<string, {
         name: string;
         currency_type: string;
         last_difference: number;
