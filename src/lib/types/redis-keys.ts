@@ -53,6 +53,11 @@ export interface RedisKeys {
 
     [`oaklands:stores:store_list`]: string[];
     [`oaklands:stores:classic_shop_reset`]: Date;
+    [`oaklands:stores:ship_location`]: {
+        reset_time: Date;
+        current_position: string;
+        next_position: string;
+    };
     [key: `oaklands:stores:item_list:${string}`]: string[];
 
     //-- Items

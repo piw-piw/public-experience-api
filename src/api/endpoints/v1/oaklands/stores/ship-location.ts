@@ -26,5 +26,17 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    return res.json({} as any, 200);
+    const location = await container.redis.jsonGet('oaklands:stores:ship_location');
+
+    if (!location)
+        return res.json({
+            error: "INTERNAL_ERROR",
+            message: "The current ship location is not cached."
+        }, 500);
+
+    return res.json({
+        reset_time: new Date(location.reset_time),
+        current_location: location.current_position,
+        next_location: location.next_position
+    }, 200);
 });

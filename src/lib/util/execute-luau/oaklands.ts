@@ -1,5 +1,5 @@
 import { executeLuau, readLuaFile, delayRepoll } from "@/lib/util/luau";
-import type { ChangelogVersions, ItemInformation, MaterialStockMarket, Newsletters, RockVariantRNG, StoresItems, TranslationKeys } from "@/lib/types/experience";
+import type { ChangelogVersions, ItemInformation, MaterialStockMarket, Newsletters, RockVariantRNG, ShipLocation, StoresItems, TranslationKeys } from "@/lib/types/experience";
 import { UniverseIDs, OaklandsPlaceIDs } from "@/lib/types/enums";
 import container from "@/lib/container";
 
@@ -247,6 +247,28 @@ export async function fetchStoreItems(): Promise<StoresItems> {
 
         return reset;
     })());
+
+    return results;
+}
+
+export async function fetchShipLocation(): Promise<ShipLocation> {
+    let script = readLuaFile('./oaklands/ship-location.luau');
+    
+    const result = await executeLuau<ShipLocation>(script, {
+        universeId: UniverseIDs.Oaklands,
+        placeId: OaklandsPlaceIDs.Production
+    });
+    
+    if (!result) return await delayRepoll(fetchShipLocation);
+
+    const results = result.results[0];
+    const locations = ["Desert", "LowerMeadows" , "Savannah", "RiverCave" ];
+
+    await container.redis.jsonSet('oaklands:stores:ship_location', {
+        reset_time: new Date(results.next_reset * 1000),
+        current_position: locations[results.current_position],
+        next_position: locations[results.next_position]
+    });
 
     return results;
 }
