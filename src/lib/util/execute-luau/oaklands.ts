@@ -242,32 +242,3 @@ export async function fetchStoreItems(): Promise<StoresItems> {
 
     return results;
 }
-
-export async function fetchClassicStoreItems(): Promise<string[]> {
-    let script = readLuaFile('./oaklands/classic-shop.luau');
-
-    const result = await executeLuau<string[]>(script, {
-        universeId: UniverseIDs.Oaklands,
-        placeId: OaklandsPlaceIDs.Production
-    });
-
-    if (!result) return await delayRepoll(fetchClassicStoreItems);
-
-    const results = result.results[0];
-
-    await container.redis.setAdd('oaklands:stores:store_list', 'ciassic-shop');
-    await container.redis.setAdd(`oaklands:stores:item_list:ciassic-shop`, results);
-    await container.redis.jsonSet('oaklands:stores:classic_shop_reset', (() => {
-        const reset = new Date();
-
-        if (reset.getUTCHours() >= 16) {
-            reset.setUTCDate(reset.getUTCDate() + 1);
-        }
-
-        reset.setUTCHours(reset.getUTCHours() >= 16 ? 4 : 16, 0, 0, 0);
-
-        return reset;
-    })());
-
-    return results;
-}
