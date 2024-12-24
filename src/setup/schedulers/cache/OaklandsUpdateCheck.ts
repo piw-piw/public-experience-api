@@ -39,6 +39,8 @@ export default class OaklandsUpdateCheck extends CacheScheduler {
     }
 
     private async _cache(updated: Date) {
+        this.container.logger(`Oaklands has been updated, recaching some data...`);
+
         await this._cacheNewsLetters();
         await this._cacheChagnelogs();
         await this._cacheCurrentItems();
@@ -75,5 +77,7 @@ export default class OaklandsUpdateCheck extends CacheScheduler {
         if (lastUpdateEpoch > cachedTimeEpoch) {
             return this._cache(lastUpdate);
         }
+
+        this.container.logger('No new Oaklands update.');
     }
 }
