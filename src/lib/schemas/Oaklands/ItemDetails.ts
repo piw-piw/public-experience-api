@@ -11,7 +11,8 @@ const ItemDetails = z.object({
     }).optional(),
     item: z.record(z.string(), z.any()).optional(),
     gift: z.object({
-        unbox_epoch: z.number()
+        unbox_epoch: z.number(),
+        unbox_date: z.date(),
     }).optional(),
 });
 
