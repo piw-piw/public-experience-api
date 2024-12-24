@@ -1,9 +1,11 @@
 import { createRoute } from "@hono/zod-openapi";
 import oaklands from "@/api/routes/oaklands";
-import Shop, { ShopExample } from "@/lib/schemas/Oaklands/Shop";
+import Shop, { ShopExample, type ShopSchema } from "@/lib/schemas/Oaklands/Shop";
 import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
 import container from "@/lib/container";
 import { getImagePath } from "@/lib/util";
+import { getBulkTranslations } from "@/lib/util/oaklands";
+import type { ShopItemSchema } from "@/lib/schemas/Oaklands/ShopItem";
 
 const route = createRoute({
     method: "get",
@@ -36,5 +38,52 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    return res.json({} as any, 200);
+    const { store } = res.req.param();
+    const stores = await container.redis.setGet('oaklands:stores:store_list');
+
+    if (!stores)
+        return res.json({
+            error: "INTERNAL_ERROR",
+            message: "The current store list is not cached."
+        }, 500);
+
+    if (!stores.includes(store))
+        return res.json({
+            error: "INVALID_STORE",
+            message: "The store provided is invalid."
+        }, 404);
+
+    const shopItemIDs = await container.redis.setGet(`oaklands:stores:item_list:${store}`);
+    if (!shopItemIDs)
+        return res.json({
+            error: "INTERNAL_ERROR",
+            message: "The current items for the store are not cached."
+        }, 500);
+
+    const shopItems: ShopItemSchema[] = [];
+
+    for (const identifier of shopItemIDs) {
+        const details = await container.redis.jsonGet(`oaklands:items:item:${identifier}`);
+        if (!details || !details.store) continue;
+
+        const { name, description, store } = details;
+        shopItems.push({
+            identifier, name, description,
+            image: `/v1/oaklands/assets/${getImagePath(details.store.type, identifier)}`,
+            ...store
+        });
+    }
+
+    return res.json({
+        ...(store === 'classic-shop'
+            ? {
+                reset_time: await (async () => {
+                    const resetTime = await container.redis.jsonGet(`oaklands:stores:classic_shop_reset`);
+                    return resetTime!;
+                })()
+            }
+            : {}
+        ),
+        shop_items: shopItems,
+    }, 200);
 });

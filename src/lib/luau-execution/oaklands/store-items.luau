@@ -44,10 +44,28 @@ function FormatName(input)
 end
 
 for _, store in pairs(Stores) do
-	local Items = store:FindFirstChild("Items")
+	-- Classic Store
 
+	if (store.Name == "Classic Store") then
+		StoreItems["classic-shop"] = {}
+
+		local ClassicShop = require(game.ServerScriptService.Server.World.Stores["Classic Store"]).new()
+		ClassicShop:CalculateSeed()
+
+		local ItemsList = ClassicShop.CurrentItems
+		if (#ItemsList == 0) then continue end
+
+		for _, item in ItemsList do
+			table.insert(StoreItems["classic-shop"], item)
+		end
+
+		continue
+	end
+
+	-- Other stores
+	
+	local Items = store:FindFirstChild("Items")
 	if (not Items) then continue end
-	if (store.Name == "Classic Store") then continue end
 
 	local StoreName = FormatName(store.Name)
 	local ItemsList = RemoveDupes(Items:GetChildren())
@@ -62,7 +80,5 @@ for _, store in pairs(Stores) do
 		table.insert(StoreItems[StoreName], item)
 	end
 end
-
-print (StoreItems)
 
 return StoreItems

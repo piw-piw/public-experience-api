@@ -49,6 +49,23 @@ export interface RedisKeys {
         }[];
     }>>;
 
+    //-- Stores
+
+    [`oaklands:stores:store_list`]: string[];
+    [`oaklands:stores:classic_shop_reset`]: Date;
+    [key: `oaklands:stores:item_list:${string}`]: string[];
+
+    //-- Items
+    
+    [`oaklands:items:item_list`]: string[];
+    [key: `oaklands:items:item:${string}`]: {
+        name: string;
+        description: string;
+        store?: { currency: string; price: number; type: string; };
+        gift?: { unbox_epoch: number; unbox_date: Date; };
+        item?: Record<string, any>;
+    };
+
     //-- Misc
 
     [`oaklands:ore_rarity`]: Record<string, Record<string, { [k: string]: number }>>;

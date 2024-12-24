@@ -1,3 +1,5 @@
+local HTTPService = game:GetService("HttpService")
+
 local Translations = require(game:GetService("ReplicatedFirst"):FindFirstChild("Client"):FindFirstChild("GUI"):FindFirstChild("Translations")).new()
 Translations:PreloadLanguages()
 
@@ -61,4 +63,4 @@ for _, Object in pairs(Objects) do
 	end
 end
 
-return ItemsInfo
+return HTTPService:JSONEncode(ItemsInfo)

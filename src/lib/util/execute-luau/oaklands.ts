@@ -1,5 +1,5 @@
 import { executeLuau, readLuaFile, delayRepoll } from "@/lib/util/luau";
-import type { ChangelogVersions, MaterialStockMarket, Newsletters, RockVariantRNG, TranslationKeys } from "@/lib/types/experience";
+import type { ChangelogVersions, ItemInformation, MaterialStockMarket, Newsletters, RockVariantRNG, StoresItems, TranslationKeys } from "@/lib/types/experience";
 import { UniverseIDs, OaklandsPlaceIDs } from "@/lib/types/enums";
 import container from "@/lib/container";
 
@@ -179,4 +179,95 @@ export async function fetchOreRarity(): Promise<RockVariantRNG> {
     await container.redis.jsonSet('oaklands:ore_rarity', parsed);
 
     return parsed;
+}
+
+export async function fetchItems(): Promise<ItemInformation> {
+    let script = readLuaFile('./oaklands/item-details.luau');
+
+    const result = await executeLuau<string>(script, {
+        universeId: UniverseIDs.Oaklands,
+        placeId: OaklandsPlaceIDs.Production
+    });
+
+    if (!result) return await delayRepoll(fetchItems);
+
+    const parsed: ItemInformation = JSON.parse(result.results[0]);
+
+    for (const [identifier, itemDetails] of Object.entries(parsed)) {
+        const { details, store, item, gift } = itemDetails;
+        const { name, description } = details;
+
+        await container.redis.jsonSet(`oaklands:items:item:${identifier}`, {
+            name, description,
+            store, item, ...(gift
+                ? { gift: { unbox_epoch: gift.unbox_epoch, unbox_date: new Date(gift.unbox_epoch * 1000) } }
+                : {}
+            )
+        });
+    }
+
+    await container.redis.setAdd(`oaklands:items:item_list`, Object.keys(parsed));
+
+    return parsed;
+}
+
+export async function fetchStoreItems(): Promise<StoresItems> {
+    let script = readLuaFile('./oaklands/store-items.luau');
+
+    const result = await executeLuau<StoresItems>(script, {
+        universeId: UniverseIDs.Oaklands,
+        placeId: OaklandsPlaceIDs.Production
+    });
+
+    if (!result) return await delayRepoll(fetchStoreItems);
+
+    const results = result.results[0];
+
+    for (const [store, items] of Object.entries(results)) {
+        await container.redis.setAdd(`oaklands:stores:item_list:${store}`, items);
+    }
+
+    await container.redis.setAdd('oaklands:stores:store_list', Object.keys(results));
+    await container.redis.jsonSet('oaklands:stores:classic_shop_reset', (() => {
+        const reset = new Date();
+
+        if (reset.getUTCHours() >= 16) {
+            reset.setUTCDate(reset.getUTCDate() + 1);
+        }
+
+        reset.setUTCHours(reset.getUTCHours() >= 16 ? 4 : 16, 0, 0, 0);
+
+        return reset;
+    })());
+
+    return results;
+}
+
+export async function fetchClassicStoreItems(): Promise<string[]> {
+    let script = readLuaFile('./oaklands/classic-shop.luau');
+
+    const result = await executeLuau<string[]>(script, {
+        universeId: UniverseIDs.Oaklands,
+        placeId: OaklandsPlaceIDs.Production
+    });
+
+    if (!result) return await delayRepoll(fetchClassicStoreItems);
+
+    const results = result.results[0];
+
+    await container.redis.setAdd('oaklands:stores:store_list', 'ciassic-shop');
+    await container.redis.setAdd(`oaklands:stores:item_list:ciassic-shop`, results);
+    await container.redis.jsonSet('oaklands:stores:classic_shop_reset', (() => {
+        const reset = new Date();
+
+        if (reset.getUTCHours() >= 16) {
+            reset.setUTCDate(reset.getUTCDate() + 1);
+        }
+
+        reset.setUTCHours(reset.getUTCHours() >= 16 ? 4 : 16, 0, 0, 0);
+
+        return reset;
+    })());
+
+    return results;
 }
