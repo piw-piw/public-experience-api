@@ -66,10 +66,14 @@ oaklands.openapi(route, async (res) => {
         const details = await container.redis.jsonGet(`oaklands:items:item:${identifier}`);
         if (!details || !details.store) continue;
 
+        const image = getImagePath(details.store.type, identifier);
+
         const { name, description, store } = details;
         shopItems.push({
             identifier, name, description,
-            image: `/v1/oaklands/assets/${getImagePath(details.store.type, identifier)}`,
+            image: !image.endsWith('no-image.png')
+                ? `/v1/oaklands/assets/${getImagePath(details.store.type, identifier)}`
+                : null,
             ...store
         });
     }
