@@ -251,6 +251,10 @@ export async function fetchStoreItems(): Promise<StoresItems> {
     return results;
 }
 
+/**
+ * Fetch the current pirate ship location data.
+ * @returns {Promise<ShipLocation>}
+ */
 export async function fetchShipLocation(): Promise<ShipLocation> {
     let script = readLuaFile('./oaklands/ship-location.luau');
     
