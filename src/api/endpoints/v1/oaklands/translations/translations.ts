@@ -70,7 +70,7 @@ oaklands.openapi(route, async (res) => {
             message: "Please provide a valid list of strings."
         }, 400);
 
-    const languageExists = await container.redis.client.sIsMember('translations:languages_list', language);
+    const languageExists = await container.redis.client.sIsMember('oaklands:translations:languages_list', language);
 
     if (!languageExists)
         return res.json({

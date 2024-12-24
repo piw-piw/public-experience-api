@@ -43,7 +43,7 @@ const route = createRoute({
 oaklands.openapi(route, async (res) => {
     const { language } = res.req.query();
 
-    const languageExists = await container.redis.client.sIsMember('translations:languages_list', language);
+    const languageExists = await container.redis.client.sIsMember('oaklands:translations:languages_list', language);
 
     if (!languageExists)
         return res.json({
