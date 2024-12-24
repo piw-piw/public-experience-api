@@ -181,6 +181,10 @@ export async function fetchOreRarity(): Promise<RockVariantRNG> {
     return parsed;
 }
 
+/**
+ * Fetch all of the current items in Oaklands.
+ * @returns {Promise<ItemInformation>}
+ */
 export async function fetchItems(): Promise<ItemInformation> {
     let script = readLuaFile('./oaklands/item-details.luau');
 
@@ -211,6 +215,10 @@ export async function fetchItems(): Promise<ItemInformation> {
     return parsed;
 }
 
+/**
+ * Fetch a list of items each store has and their rotation times.
+ * @returns {Promise<StoresItems>}
+ */
 export async function fetchStoreItems(): Promise<StoresItems> {
     let script = readLuaFile('./oaklands/store-items.luau');
 
