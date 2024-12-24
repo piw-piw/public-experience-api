@@ -1,6 +1,6 @@
 import container from "@/lib/container";
 
-export default abstract class CachePiece {
+export default abstract class CacheScheduler {
     /** How often the cache should be scheduled to run. */
     public readonly schedule: string;
     /** A reference to the container piece. */

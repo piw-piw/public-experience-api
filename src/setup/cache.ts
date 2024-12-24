@@ -1,9 +1,9 @@
 import path from 'path';
 import NodeSchedule from "node-schedule";
 import { getFilePaths } from "@/lib/util";
-import type CachePiece from '@/lib/structures/CachePiece';
+import type CachePiece from '@/lib/structures/CacheScheduler';
 
-const paths = getFilePaths(path.join(process.cwd(), 'src/setup/cache'));
+const paths = getFilePaths(path.join(process.cwd(), 'src/setup/schedulers'));
 
 const runners: Function[] = [];
 const schedulers: Record<string, Function[]> = {};

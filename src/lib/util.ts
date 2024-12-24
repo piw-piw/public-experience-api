@@ -28,20 +28,6 @@ export function getFilePaths(dir: string, filterPath: string = '.ts', paths: str
 }
 
 /**
- * Get the last update time for Oaklands.
- * @returns {Promise<Date>}
- */
-export async function getLastOaklandsUpdate(): Promise<Date> {
-    const details = await ExperiencesApi.placeInfo({ universeId: UniverseIDs.Oaklands, placeId: OaklandsPlaceIDs.Production });
-
-    if (!details) {
-        throw new Error('Failed to get last update time.');
-    }
-
-    return details.data.updateTime;
-}
-
-/**
  * Fetch the path of an Oaklands item image.
  * @param type The type of item.
  * @param identifier The name of the item.

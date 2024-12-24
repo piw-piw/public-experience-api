@@ -74,6 +74,7 @@ export interface RedisKeys {
     //-- Misc
 
     [`oaklands:ore_rarity`]: Record<string, Record<string, { [k: string]: number }>>;
+    [`oaklands:last_update`]: Date;
 }
 
 export type RedisString = {
