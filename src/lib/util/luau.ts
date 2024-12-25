@@ -78,6 +78,32 @@ export async function poll<Data extends Object>(info: { universeId: number; plac
     }
 }
 
+const COOLDOWN: Record<string, number> = {};
+
+/**
+ * Prevent scripts from being ran too quickly.
+ * This will take the script and Base64 it, then compare it to a list of scripts ran.
+ * This is the only good way I could think of preventing a script from running twice at once with the current limitations.
+ * @param script The code being ran.
+ * @returns {boolean}
+ */
+function _scriptOnInternalCooldown(script: string): boolean {
+    const now = new Date().getTime();
+    const base64Script = Buffer.from(script).toString('base64');
+    
+    const lastRan = COOLDOWN[base64Script];
+    if (lastRan > now) {
+        return true
+    }
+    /**
+     *  If it's not on cooldown, add it to the list and return false so it runs once.
+    */
+    else {
+        COOLDOWN[base64Script] = now + 1000 * 60;
+        return false;
+    }
+}
+
 /**
  * Execute Luau.
  * @param script The script to run.
@@ -85,6 +111,8 @@ export async function poll<Data extends Object>(info: { universeId: number; plac
  * @returns {Promise<{ version: number; results: Data[] } | null>}
  */
 export async function executeLuau<Data extends Object>(script: string, info: { universeId: number, placeId: number, version?: number }): Promise<{ version: number; results: Data[]; } | null> {
+    if (_scriptOnInternalCooldown(script)) return null;
+
     try {
         const { data: { universeId, placeId, version, sessionId, taskId } } = await LuauExecutionApi.executeLuau({ ...info, script });
         return await poll<Data>({ universeId, placeId, version, sessionId, taskId });

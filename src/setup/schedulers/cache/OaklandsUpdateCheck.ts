@@ -1,11 +1,16 @@
 import { ExperiencesApi } from "openblox/cloud";
 import CacheScheduler from "@/lib/structures/CacheScheduler";
 import { OaklandsPlaceIDs, UniverseIDs } from '@/lib/types/enums';
-import { cacheMissingChangelogs, cacheMissingNewsletters, fetchItems, fetchOreRarity, fetchStoreItems, fetchTranslationStrings } from "@/lib/util/execute-luau/oaklands";
+import { cacheMissingChangelogs, cacheMissingNewsletters, fetchItems, fetchMaterialStockMarket, fetchOreRarity, fetchStoreItems, fetchTranslationStrings } from "@/lib/util/execute-luau/oaklands";
 
 export default class OaklandsUpdateCheck extends CacheScheduler {
     constructor() {
         super({ schedule: '*/5 * * * *' });
+    }
+
+    private async _cacheMaterialStockMarket() {
+        this.container.logger('Refetching Oaklands material stock market...');
+        await fetchMaterialStockMarket();
     }
 
     private async _cacheNewsLetters() {
@@ -41,6 +46,7 @@ export default class OaklandsUpdateCheck extends CacheScheduler {
     private async _cache(updated: Date) {
         this.container.logger(`Oaklands has been updated, recaching some data...`);
 
+        await this._cacheMaterialStockMarket();
         await this._cacheNewsLetters();
         await this._cacheChagnelogs();
         await this._cacheCurrentItems();
