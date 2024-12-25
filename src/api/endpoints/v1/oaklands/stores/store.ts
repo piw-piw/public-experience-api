@@ -4,7 +4,6 @@ import Shop, { ShopExample, type ShopSchema } from "@/lib/schemas/Oaklands/Shop"
 import ErrorMessage, { ErrorMessageExample } from "@/lib/schemas/ErrorMessage";
 import container from "@/lib/container";
 import { getImagePath } from "@/lib/util";
-import { getBulkTranslations } from "@/lib/util/oaklands";
 import type { ShopItemSchema } from "@/lib/schemas/Oaklands/ShopItem";
 
 const route = createRoute({
