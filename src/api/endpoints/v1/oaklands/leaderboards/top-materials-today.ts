@@ -36,5 +36,29 @@ const route = createRoute({
 });
 
 oaklands.openapi(route, async (res) => {
-    return res.json({} as any, 200);
+    const { currencyType } = res.req.query();
+
+    const leaderboard = await container.redis.jsonGet('oaklands:leaderboards:material_leaderboard:leaderboard');
+    const resetTime = await container.redis.jsonGet('oaklands:leaderboards:material_leaderboard:reset_time');
+    const lastUpdated = await container.redis.jsonGet('oaklands:leaderboards:material_leaderboard:last_updated');
+    const currencies = await container.redis.setGet('oaklands:leaderboards:material_leaderboard:currencies');
+
+    if (!leaderboard || !resetTime || !lastUpdated || !currencies)
+        return res.json({
+            error: "INTERNAL_ERROR",
+            message: "The leaderboard is currently not cached."
+        }, 500);
+
+    if (!currencies.includes(currencyType))
+        return res.json({
+            error: "NOT_FOUND",
+            message: "The currency type provided is not valid."
+        }, 404);
+
+    return res.json({
+        reset_time: new Date(resetTime),
+        last_update: new Date(lastUpdated),
+        currency_types: currencies,
+        leaderboard: leaderboard[currencyType]
+    }, 200);
 });

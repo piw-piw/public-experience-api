@@ -71,6 +71,16 @@ export interface RedisKeys {
         item?: Record<string, any>;
     };
 
+    //-- Leaderboards
+    [`oaklands:leaderboards:material_leaderboard:reset_time`]: Date;
+    [`oaklands:leaderboards:material_leaderboard:last_updated`]: Date;
+    [`oaklands:leaderboards:material_leaderboard:currencies`]: string[];
+    [`oaklands:leaderboards:material_leaderboard:leaderboard`]: Record<string, {
+        position: number;
+        name: string;
+        value: number;
+    }[]>;
+
     //-- Misc
 
     [`oaklands:ore_rarity`]: Record<string, Record<string, { [k: string]: number }>>;
