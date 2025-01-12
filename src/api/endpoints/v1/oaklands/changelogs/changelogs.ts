@@ -34,5 +34,25 @@ oaklands.openapi(route, async (res) => {
             message: "The contents for the changelog are currently not cached."
         }, 500);
 
+    /**
+     * This is so the changelogs are sorted by version in ascending order.
+     * Requested by piw-piw.
+     */
+    versions.sort((a, b) => {
+        const [ majorA, minorA, patchA ] = a.split('.'); 
+        const [ majorB, minorB, patchB ] = b.split('.');
+
+        if (majorA < majorB) return -1;
+        if (majorA > majorB) return 1;
+
+        if (minorA < minorB) return -1;
+        if (minorA > minorB) return 1;
+
+        if (patchA < patchB) return -1;
+        if (patchA > patchB) return 1;
+
+        return 0;
+    })
+
     return res.json({ keys: versions }, 200);
 });
