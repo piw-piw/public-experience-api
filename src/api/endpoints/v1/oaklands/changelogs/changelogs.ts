@@ -52,7 +52,7 @@ oaklands.openapi(route, async (res) => {
         if (patchA > patchB) return 1;
 
         return 0;
-    })
+    });
 
     return res.json({ keys: versions }, 200);
 });
