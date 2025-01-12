@@ -39,8 +39,9 @@ oaklands.openapi(route, async (res) => {
      * Requested by piw-piw.
      */
     versions.sort((a, b) => {
-        const [ majorA, minorA, patchA ] = a.split('.'); 
-        const [ majorB, minorB, patchB ] = b.split('.');
+        const [ majorA, minorA, patchA ] = a.split('.').map(Number); 
+        const [ majorB, minorB, patchB ] = b.split('.').map(Number);
+        // Strings are transformed to NaN, so versions with text on the same version level are treated as in the original order.
 
         if (majorA < majorB) return -1;
         if (majorA > majorB) return 1;
