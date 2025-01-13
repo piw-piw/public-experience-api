@@ -19,6 +19,12 @@ const route = createRoute({
             },
             description: "OK"
         },
+        400: {
+            content: {
+                "application/json": { schema: ErrorMessage, example: ErrorMessageExample }
+            },
+            description: "BAD REQUEST"
+        },
         404: {
             content: {
                 "application/json": { schema: ErrorMessage, example: ErrorMessageExample }
@@ -36,6 +42,11 @@ const route = createRoute({
 
 oaklands.openapi(route, async (res) => {
     const { version } = res.req.param();
+    if (!version) return res.json({
+        error: "INVALID_VERSION",
+        message: "Please provide a valid version."
+    }, 400);
+
     const versions = await container.redis.setGet('oaklands:changelog:versions_list');
 
     if (!versions)

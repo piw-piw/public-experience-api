@@ -19,6 +19,12 @@ const route = createRoute({
             },
             description: "OK"
         },
+        400: {
+            content: {
+                "application/json": { schema: ErrorMessage, example: ErrorMessageExample }
+            },
+            description: "BAD REQUEST"
+        },
         404: {
             content: {
                 "application/json": { schema: ErrorMessage, example: ErrorMessageExample }
@@ -36,6 +42,11 @@ const route = createRoute({
 
 oaklands.openapi(route, async (res) => {
     const { id } = res.req.param();
+    if (!id) return res.json({
+        error: "INVALID_ID",
+        message: "Please provide a valid id."
+    }, 400);
+
     const pages = await container.redis.setGet('oaklands:newsletter:pages_list');
 
     if (!pages)

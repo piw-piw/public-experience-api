@@ -25,6 +25,12 @@ const route = createRoute({
             },
             description: "OK"
         },
+        400: {
+            content: {
+                "application/json": { schema: ErrorMessage, example: ErrorMessageExample }
+            },
+            description: "BAD REQUEST"
+        },
         404: {
             content: {
                 "application/json": { schema: ErrorMessage, example: ErrorMessageExample }
@@ -42,6 +48,10 @@ const route = createRoute({
 
 oaklands.openapi(route, async (res) => {
     const { language } = res.req.query();
+    if (!language) return res.json({
+        error: "INVALID_LANGUAGE",
+        message: "Please provide a valid language."
+    }, 400);
 
     const languageExists = await container.redis.client.sIsMember('oaklands:translations:languages_list', language);
 

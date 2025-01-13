@@ -64,6 +64,10 @@ function _returnStrings(strings: string[], translations: TranslationKeys[string]
 oaklands.openapi(route, async (res) => {
     const { language, strings } = res.req.query();
 
+    if (!language) return res.json({
+        error: "INVALID_LANGUAGE",
+        message: "Please provide a valid language."
+    }, 400);
     if (!strings || !strings.length)
         return res.json({
             error: "INVALID_STRINGS",

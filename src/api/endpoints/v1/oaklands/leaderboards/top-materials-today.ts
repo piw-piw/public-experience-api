@@ -20,6 +20,12 @@ const route = createRoute({
             },
             description: "OK"
         },
+        400: {
+            content: {
+                "application/json": { schema: ErrorMessage, example: ErrorMessageExample }
+            },
+            description: "BAD REQUEST"
+        },
         404: {
             content: {
                 "application/json": { schema: ErrorMessage, example: ErrorMessageExample }
@@ -37,6 +43,10 @@ const route = createRoute({
 
 oaklands.openapi(route, async (res) => {
     const { currencyType } = res.req.query();
+    if (!currencyType) return res.json({
+        error: "INVALID_CURRENCY_TYPE",
+        message: "Please provide a valid currency type."
+    }, 400);
 
     const leaderboard = await container.redis.jsonGet('oaklands:leaderboards:material_leaderboard:leaderboard');
     const resetTime = await container.redis.jsonGet('oaklands:leaderboards:material_leaderboard:reset_time');
