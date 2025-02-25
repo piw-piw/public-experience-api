@@ -13,7 +13,7 @@ end
 local Translations = require(game:GetService("ReplicatedFirst"):FindFirstChild("Client"):FindFirstChild("GUI"):FindFirstChild("Translations")).new()
 Translations:PreloadLanguages()
 
-local Stores = game.Workspace.World.Regions.Stores:GetChildren()
+local Stores = game.Workspace.Worlds.Finlay.Regions.Stores:GetChildren()
 local StoreItems = {}
 
 function RemoveDupes(items)
