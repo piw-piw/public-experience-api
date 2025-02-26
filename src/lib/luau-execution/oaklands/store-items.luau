@@ -49,7 +49,7 @@ for _, store in pairs(Stores) do
 	if (store.Name == "Classic Store") then
 		StoreItems["classic-shop"] = {}
 
-		local ClassicShop = require(game.ServerScriptService.Server.World.Stores["Classic Store"]).new()
+		local ClassicShop = require(game.ServerScriptService.Server.World.Stores.Finlay["Classic Store"]).new()
 		ClassicShop:CalculateSeed()
 
 		local ItemsList = ClassicShop.CurrentItems
