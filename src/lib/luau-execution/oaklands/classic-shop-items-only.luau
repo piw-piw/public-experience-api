@@ -10,7 +10,7 @@ for _,v in pairs(game.Workspace.Worlds:GetChildren()) do
     end
 end
 
-local Store = require(game.ServerScriptService.Server.World.Stores["Classic Store"]).new()
+local Store = require(game.ServerScriptService.Server.World.Stores.Finlay["Classic Store"]).new()
 Store:CalculateSeed()
 
 local Items = Store.CurrentItems
